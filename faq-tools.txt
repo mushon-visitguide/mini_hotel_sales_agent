@@ -1,0 +1,103 @@
+6-Section Structure for Guest App
+
+Section 1: Accommodations & Rates
+What it covers:
+
+Room types and categories
+Pricing (weekday/weekend/seasonal)
+Package deals and special offers
+What's included in each room
+Bed configurations
+Room-specific amenities (minibar, balcony, jacuzzi, etc.)
+
+
+Section 2: Booking & Policies
+What it covers:
+
+Check-in/check-out times
+Cancellation and prepayment policies
+Payment methods accepted
+Deposit requirements
+Age restrictions
+Reservation process
+Special requests handling
+
+
+Section 3: Amenities & Facilities
+What it covers:
+
+Pool, spa, gym, sauna
+Restaurants, bars, cafés
+Breakfast options
+Parking availability
+WiFi access
+Pet policies
+Accessibility features
+Room service
+Special services (happy hour, treatments, activities)
+
+
+Section 4: Location & Getting Here
+What it covers:
+
+Full address and directions
+Distance to major attractions
+Nearby restaurants and shops
+Public transportation options
+Airport/train station transfers
+Driving/walking times
+Area highlights
+
+
+Section 5: My Reservations ⭐ NEW - Guest-Specific
+What it covers:
+
+Last 2 past reservations (dates, room type, summary)
+Next 2 upcoming reservations (dates, room type, confirmation numbers)
+Reservation status
+Quick actions (modify, cancel, extend)
+Download invoices/receipts
+Add special requests to upcoming stays
+
+
+Section 6: My Stay Guide ⭐ NEW - Guest-Specific
+What it covers:
+
+Access Information:
+
+Door lock code/key location
+WiFi password
+Parking gate remote location
+Gate entry codes
+Room safe combination
+
+
+Property Navigation:
+
+How to find your room
+Where facilities are located
+Emergency exits
+
+
+Essential Instructions:
+
+Thermostat/AC controls
+TV/entertainment system guide
+Coffee machine operation
+Where to find extra amenities (towels, toiletries, etc.)
+
+
+Important Contacts:
+
+Front desk direct line
+Emergency numbers
+Concierge/guest services
+
+
+
+
+App-Specific Benefits:
+
+Sections 1-4 = General hotel info (same for everyone)
+Sections 5-6 = Personalized to logged-in guest
+Dynamic content updates based on reservation status

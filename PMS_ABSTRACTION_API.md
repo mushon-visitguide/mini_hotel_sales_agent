@@ -450,6 +450,649 @@ assert isinstance(client, MiniHotelClient)
 
 ---
 
+## Response Structures & Examples
+
+This section shows what responses look like at different stages: from raw PMS API data to final Python objects.
+
+### Response Flow Overview
+
+```
+┌─────────────────┐
+│  PMS API Call   │  get_availability()
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Raw XML/JSON  │  MiniHotel returns XML response
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Parse & Build  │  Extract data, create Python objects
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Python Objects  │  AvailabilityResponse with nested data
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   AI Agent Use  │  Query availability, prices, features
+└─────────────────┘
+```
+
+---
+
+### Example 1: Availability Response
+
+#### Raw XML from MiniHotel API
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<AvailRaters>
+    <Hotel id="wayinn" Name_e="WayInn Hotel" Name_h="מלון ווייאין" Currency="ILS">
+        <DateRange from="2025-11-14" to="2025-11-16"/>
+        <Guests adults="2" child="0" babies="0"/>
+
+        <!-- Room Type 1: Available with multiple meal plans -->
+        <RoomType id="DELUXE-KING" Name_e="Deluxe King Room" Name_h="חדר דלוקס קינג">
+            <Inventory Allocation="3" maxavail="5"/>
+            <price board="BB" boardDesc="Bed &amp; Breakfast" value="420.00" value_nrf="380.00"/>
+            <price board="HB" boardDesc="Half Board" value="520.00"/>
+        </RoomType>
+
+        <!-- Room Type 2: Limited availability -->
+        <RoomType id="SUITE" Name_e="Executive Suite" Name_h="סוויטה מנהלים">
+            <Inventory Allocation="1" maxavail="2"/>
+            <price board="BB" boardDesc="Bed &amp; Breakfast" value="650.00"/>
+            <price board="FB" boardDesc="Full Board" value="850.00"/>
+        </RoomType>
+
+        <!-- Room Type 3: Sold out (no prices) -->
+        <RoomType id="STANDARD" Name_e="Standard Room" Name_h="חדר סטנדרטי">
+            <Inventory Allocation="0" maxavail="8"/>
+        </RoomType>
+    </Hotel>
+</AvailRaters>
+```
+
+#### Parsed Python Object
+
+```python
+AvailabilityResponse(
+    hotel_id="wayinn",
+    hotel_name="WayInn Hotel",
+    currency="ILS",
+    check_in=date(2025, 11, 14),
+    check_out=date(2025, 11, 16),
+    adults=2,
+    children=0,
+    babies=0,
+    room_types=[
+        # Available room with multiple meal options
+        RoomTypeAvailability(
+            room_type_code="DELUXE-KING",
+            room_type_name="Deluxe King Room",
+            room_type_name_local="חדר דלוקס קינג",
+            inventory=Inventory(
+                allocation=3,      # 3 rooms available
+                max_available=5    # Out of 5 total rooms
+            ),
+            prices=[
+                BoardPrice(
+                    board_code="BB",
+                    board_description="Bed & Breakfast",
+                    price=420.00,  # ⚠️ TOTAL for 2 nights, NOT per night!
+                    price_non_refundable=380.00
+                ),
+                BoardPrice(
+                    board_code="HB",
+                    board_description="Half Board",
+                    price=520.00,
+                    price_non_refundable=None
+                )
+            ],
+            # Enhanced fields (populated if cache built)
+            max_adults=2,
+            max_children=1,
+            max_babies=0,
+            bed_configuration="1 King",
+            size_sqm=None,
+            features=["Ocean View", "Balcony"]
+        ),
+
+        # Limited availability
+        RoomTypeAvailability(
+            room_type_code="SUITE",
+            room_type_name="Executive Suite",
+            room_type_name_local="סוויטה מנהלים",
+            inventory=Inventory(allocation=1, max_available=2),
+            prices=[
+                BoardPrice("BB", "Bed & Breakfast", 650.00, None),
+                BoardPrice("FB", "Full Board", 850.00, None)
+            ],
+            max_adults=2,
+            max_children=2,
+            max_babies=1,
+            bed_configuration=None,
+            size_sqm=45.0,
+            features=["Living Area", "Mini Bar", "City View"]
+        ),
+
+        # Sold out room (allocation = 0, no prices)
+        RoomTypeAvailability(
+            room_type_code="STANDARD",
+            room_type_name="Standard Room",
+            room_type_name_local="חדר סטנדרטי",
+            inventory=Inventory(allocation=0, max_available=8),
+            prices=None,  # No prices when sold out
+            max_adults=2,
+            max_children=0,
+            max_babies=0,
+            bed_configuration=None,
+            size_sqm=None,
+            features=None
+        )
+    ]
+)
+```
+
+#### Practical Usage Example
+
+```python
+from datetime import date, timedelta
+
+# Make API call
+check_in = date(2025, 11, 14)
+check_out = date(2025, 11, 16)
+response = client.get_availability(
+    check_in=check_in,
+    check_out=check_out,
+    adults=2,
+    rate_code="WEB"
+)
+
+# Basic information
+print(f"Hotel: {response.hotel_name}")
+print(f"Currency: {response.currency}")
+print(f"Stay: {response.check_in} to {response.check_out}")
+nights = (response.check_out - response.check_in).days
+print(f"Nights: {nights}")
+print()
+
+# Filter only available rooms (allocation > 0)
+available_rooms = response.get_available_rooms()
+print(f"Available room types: {len(available_rooms)}")
+print()
+
+# Iterate through available options
+for room_type in available_rooms:
+    print(f"{'=' * 60}")
+    print(f"{room_type.room_type_name} ({room_type.room_type_code})")
+    print(f"{'=' * 60}")
+
+    # Availability info
+    if room_type.inventory:
+        print(f"Available: {room_type.inventory.allocation} / {room_type.inventory.max_available} rooms")
+        print(f"Status: {'✓ Available' if room_type.inventory.is_available else '✗ Sold Out'}")
+
+    # Price information
+    if room_type.prices:
+        min_price = room_type.get_min_price()
+        print(f"\nStarting from: {response.currency} {min_price:.2f} (total for {nights} nights)")
+        print(f"Per night: {response.currency} {min_price / nights:.2f}")
+
+        print(f"\nMeal plan options:")
+        for price in room_type.prices:
+            print(f"  • {price.board_description}: {response.currency} {price.price:.2f}")
+            if price.price_non_refundable:
+                savings = price.price - price.price_non_refundable
+                print(f"    Non-refundable: {response.currency} {price.price_non_refundable:.2f} (save {response.currency} {savings:.2f})")
+
+    # Enhanced room specifications (if available)
+    if room_type.max_adults:
+        total = room_type.get_max_occupancy()
+        print(f"\nMax occupancy: {total} guests")
+        print(f"  ({room_type.max_adults} adults + {room_type.max_children} children + {room_type.max_babies} babies)")
+
+    if room_type.bed_configuration:
+        print(f"Bed configuration: {room_type.bed_configuration}")
+
+    if room_type.size_sqm:
+        print(f"Room size: {room_type.size_sqm} sqm")
+
+    if room_type.features:
+        print(f"Features: {', '.join(room_type.features)}")
+
+    print()
+```
+
+**Output:**
+```
+Hotel: WayInn Hotel
+Currency: ILS
+Stay: 2025-11-14 to 2025-11-16
+Nights: 2
+
+Available room types: 2
+
+============================================================
+Deluxe King Room (DELUXE-KING)
+============================================================
+Available: 3 / 5 rooms
+Status: ✓ Available
+
+Starting from: ILS 420.00 (total for 2 nights)
+Per night: ILS 210.00
+
+Meal plan options:
+  • Bed & Breakfast: ILS 420.00
+    Non-refundable: ILS 380.00 (save ILS 40.00)
+  • Half Board: ILS 520.00
+
+Max occupancy: 3 guests
+  (2 adults + 1 children + 0 babies)
+Bed configuration: 1 King
+Features: Ocean View, Balcony
+
+============================================================
+Executive Suite (SUITE)
+============================================================
+Available: 1 / 2 rooms
+Status: ✓ Available
+
+Starting from: ILS 650.00 (total for 2 nights)
+Per night: ILS 325.00
+
+Meal plan options:
+  • Bed & Breakfast: ILS 650.00
+  • Full Board: ILS 850.00
+
+Max occupancy: 5 guests
+  (2 adults + 2 children + 1 babies)
+Room size: 45.0 sqm
+Features: Living Area, Mini Bar, City View
+```
+
+---
+
+### Example 2: Room Types Response
+
+#### Python Object
+
+```python
+room_types = client.get_room_types()
+# Returns:
+[
+    RoomType(
+        code="DBL",
+        description="Double Room",
+        image_url="https://hotel.com/images/double.jpg"
+    ),
+    RoomType(
+        code="SUITE",
+        description="Executive Suite",
+        image_url="https://hotel.com/images/suite.jpg"
+    ),
+    RoomType(
+        code="FAMILY",
+        description="Family Room",
+        image_url=None  # No image available
+    )
+]
+```
+
+#### Usage
+
+```python
+room_types = client.get_room_types()
+
+print("Available room types:")
+for rt in room_types:
+    print(f"  • {rt.code}: {rt.description}")
+    if rt.image_url:
+        print(f"    Image: {rt.image_url}")
+```
+
+**Output:**
+```
+Available room types:
+  • DBL: Double Room
+    Image: https://hotel.com/images/double.jpg
+  • SUITE: Executive Suite
+    Image: https://hotel.com/images/suite.jpg
+  • FAMILY: Family Room
+```
+
+---
+
+### Example 3: Rooms Response
+
+#### Python Object
+
+```python
+rooms = client.get_rooms()
+# Returns:
+[
+    Room(
+        room_number="101",
+        room_type="DBL",
+        serial="R001",
+        status="C",  # Clean
+        wing="A",
+        color="blue",
+        is_dorm=False,
+        is_bed=False,
+        occupancy_limits=[
+            GuestOccupancy(guest_type="A", max_count=2),  # Max 2 adults
+            GuestOccupancy(guest_type="C", max_count=1),  # Max 1 child
+            GuestOccupancy(guest_type="B", max_count=0)   # No babies
+        ],
+        attributes=[
+            RoomAttribute(code="OV", description="Ocean View"),
+            RoomAttribute(code="BAL", description="Balcony")
+        ],
+        image_url="https://hotel.com/images/room101.jpg"
+    ),
+    Room(
+        room_number="201",
+        room_type="SUITE",
+        serial="R045",
+        status="C",
+        wing="B",
+        color="gold",
+        is_dorm=False,
+        is_bed=False,
+        occupancy_limits=[
+            GuestOccupancy(guest_type="A", max_count=2),
+            GuestOccupancy(guest_type="C", max_count=2),
+            GuestOccupancy(guest_type="B", max_count=1)
+        ],
+        attributes=[
+            RoomAttribute(code="LIV", description="Living Area"),
+            RoomAttribute(code="MB", description="Mini Bar"),
+            RoomAttribute(code="CV", description="City View")
+        ],
+        image_url="https://hotel.com/images/room201.jpg"
+    )
+]
+```
+
+#### Usage
+
+```python
+rooms = client.get_rooms()
+
+for room in rooms:
+    print(f"\nRoom {room.room_number} ({room.room_type})")
+    print(f"  Status: {room.status}")
+    print(f"  Wing: {room.wing}")
+
+    if room.occupancy_limits:
+        print(f"  Occupancy:")
+        for occ in room.occupancy_limits:
+            guest_label = {"A": "Adults", "C": "Children", "B": "Babies"}
+            print(f"    • Max {occ.max_count} {guest_label.get(occ.guest_type, 'guests')}")
+
+    if room.attributes:
+        features = [attr.description for attr in room.attributes]
+        print(f"  Features: {', '.join(features)}")
+```
+
+**Output:**
+```
+Room 101 (DBL)
+  Status: C
+  Wing: A
+  Occupancy:
+    • Max 2 Adults
+    • Max 1 Children
+    • Max 0 Babies
+  Features: Ocean View, Balcony
+
+Room 201 (SUITE)
+  Status: C
+  Wing: B
+  Occupancy:
+    • Max 2 Adults
+    • Max 2 Children
+    • Max 1 Babies
+  Features: Living Area, Mini Bar, City View
+```
+
+---
+
+### Example 4: Booking Link Response
+
+#### Python Object
+
+```python
+link = client.generate_booking_link(
+    check_in=date(2025, 11, 14),
+    check_out=date(2025, 11, 16),
+    adults=2,
+    children=1,
+    room_type_code="DELUXE-KING",
+    language="en",
+    currency="USD"
+)
+
+# Returns string:
+"https://api.minihotel.cloud/gds/?hotel=wayinn&checkin=2025-11-14&checkout=2025-11-16&adults=2&children=1&room=DELUXE-KING"
+```
+
+#### Usage
+
+```python
+# Generate booking link
+link = client.generate_booking_link(
+    check_in=date(2025, 11, 14),
+    check_out=date(2025, 11, 16),
+    adults=2,
+    children=1,
+    room_type_code="DELUXE-KING"
+)
+
+print(f"Book now: {link}")
+
+# In AI agent conversation:
+agent_response = f"""
+Great! I found the perfect room for you.
+
+Deluxe King Room
+• Price: $420 for 2 nights
+• Occupancy: Up to 3 guests
+• Features: King bed, Ocean view, Balcony
+
+Ready to book? Click here:
+{link}
+"""
+```
+
+---
+
+### Important Response Characteristics
+
+#### 1. **Prices are TOTAL for Stay, NOT Per-Night**
+
+⚠️ **CRITICAL:** Prices returned in `BoardPrice.price` are the **total cost for the entire stay**, not per night!
+
+```python
+response = client.get_availability(
+    check_in=date(2025, 11, 14),
+    check_out=date(2025, 11, 16),  # 2 nights
+    adults=2
+)
+
+for room in response.get_available_rooms():
+    total_price = room.get_min_price()  # e.g., 420.00
+    nights = (response.check_out - response.check_in).days
+    per_night = total_price / nights
+
+    print(f"{room.room_type_name}")
+    print(f"  Total: ${total_price:.2f} for {nights} nights")
+    print(f"  Per night: ${per_night:.2f}")
+```
+
+**Output:**
+```
+Deluxe King Room
+  Total: $420.00 for 2 nights
+  Per night: $210.00
+```
+
+#### 2. **Optional Fields Can Be None**
+
+Many fields are optional and may be `None`:
+
+```python
+# Room types might be None if no availability
+if response.room_types:
+    for room_type in response.room_types:
+        # Prices are None for sold-out rooms
+        if room_type.prices:
+            print(f"Starting from: ${room_type.get_min_price()}")
+        else:
+            print("Sold out")
+
+        # Enhanced fields might not be available
+        if room_type.features:
+            print(f"Features: {', '.join(room_type.features)}")
+        else:
+            print("Features not available")
+```
+
+#### 3. **Bilingual Support**
+
+MiniHotel provides English and local language names:
+
+```python
+for room_type in response.room_types:
+    print(f"English: {room_type.room_type_name}")
+    if room_type.room_type_name_local:
+        print(f"Local: {room_type.room_type_name_local}")
+```
+
+**Output:**
+```
+English: Deluxe King Room
+Local: חדר דלוקס קינג
+```
+
+#### 4. **Helper Methods**
+
+Response objects have convenient helper methods:
+
+```python
+# Get only available rooms (allocation > 0)
+available = response.get_available_rooms()
+
+# Get cheapest meal plan for a room
+min_price = room_type.get_min_price()
+
+# Calculate total capacity
+total_guests = room_type.get_max_occupancy()  # adults + children + babies
+
+# Check if room is available
+is_available = room_type.inventory.is_available  # True if allocation > 0
+```
+
+#### 5. **Enhanced Fields Require Cache**
+
+Enhanced fields (`max_adults`, `features`, `bed_configuration`, etc.) are only available if room specs cache is built:
+
+```python
+# In sandbox mode, build cache first
+client.build_room_specs_cache()
+
+# Now availability responses include enhanced fields
+response = client.get_availability(check_in, check_out, adults=2)
+
+for room_type in response.get_available_rooms():
+    if room_type.max_adults:  # Only available if cache was built
+        print(f"Max occupancy: {room_type.get_max_occupancy()} guests")
+    if room_type.features:
+        print(f"Features: {', '.join(room_type.features)}")
+```
+
+---
+
+### AI Agent Response Formatting
+
+Here's how an AI agent might format responses for natural conversation:
+
+```python
+def format_availability_for_guest(response: AvailabilityResponse) -> str:
+    """Format availability response for guest conversation"""
+
+    nights = (response.check_out - response.check_in).days
+    available = response.get_available_rooms()
+
+    if not available:
+        return f"I'm sorry, we don't have any rooms available for {response.check_in} to {response.check_out}."
+
+    message = f"Great news! We have {len(available)} room type(s) available for {nights} night(s):\n\n"
+
+    for i, room in enumerate(available, 1):
+        message += f"{i}. **{room.room_type_name}**\n"
+
+        # Price
+        min_price = room.get_min_price()
+        if min_price:
+            per_night = min_price / nights
+            message += f"   💰 From {response.currency} {min_price:.2f} total ({per_night:.2f}/night)\n"
+
+        # Availability
+        if room.inventory:
+            if room.inventory.allocation == 1:
+                message += f"   ⚠️  Only 1 room left!\n"
+            else:
+                message += f"   ✓ {room.inventory.allocation} rooms available\n"
+
+        # Occupancy
+        if room.max_adults:
+            message += f"   👥 Fits up to {room.get_max_occupancy()} guests\n"
+
+        # Features
+        if room.features:
+            message += f"   ✨ {', '.join(room.features[:3])}\n"  # Show first 3 features
+
+        # Meal options
+        if room.prices and len(room.prices) > 1:
+            message += f"   🍽️  {len(room.prices)} meal plan options\n"
+
+        message += "\n"
+
+    return message
+
+# Usage in agent
+response = client.get_availability(check_in, check_out, adults=2)
+guest_message = format_availability_for_guest(response)
+print(guest_message)
+```
+
+**Output:**
+```
+Great news! We have 2 room type(s) available for 2 night(s):
+
+1. **Deluxe King Room**
+   💰 From ILS 420.00 total (210.00/night)
+   ✓ 3 rooms available
+   👥 Fits up to 3 guests
+   ✨ Ocean View, Balcony, King Bed
+   🍽️  2 meal plan options
+
+2. **Executive Suite**
+   💰 From ILS 650.00 total (325.00/night)
+   ⚠️  Only 1 room left!
+   👥 Fits up to 5 guests
+   ✨ Living Area, Mini Bar, City View
+   🍽️  2 meal plan options
+```
+
+---
+
 ## Error Handling
 
 All PMS implementations should raise these standard exceptions:
