@@ -32,7 +32,11 @@
 
 **Guest:** 555-0892, jrodriguez@email.com
 
-**Agent:** Booked! Premium King, Oct 19-21, $510 + tax. Confirmation sent to your email. Happy anniversary! 🎊
+**Agent:** Perfect! Here's your booking link to complete your reservation:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-10-19&checkout=2024-10-21&adults=2&room=PREMIUM-KING&rate=WEB
+
+Premium King, Oct 19-21, $510 + tax. Happy anniversary! 🎊
 
 **Guest:** perfect thank you!
 
@@ -90,7 +94,11 @@
 
 **Guest:** 555-2847 kevin.mills@email.com
 
-**Agent:** Done! 2 Family Suites, March 23-26, $690 + tax. Both families will love the pool! Confirmation sent 👍
+**Agent:** Great! Here's your booking link:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-03-23&checkout=2024-03-26&adults=4&children=5&rooms=2&room=FAMILY-SUITE&rate=WEB
+
+2 Family Suites, March 23-26, $690 + tax. Both families will love the pool! 👍
 
 **Guest:** awesome thanks!
 
@@ -122,7 +130,11 @@
 
 **Guest:** 555-3921
 
-**Agent:** Booked! Confirmation# 84729. See you soon!
+**Agent:** Perfect! Here's your booking link:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-10-14&checkout=2024-10-15&adults=2&room=STANDARD-QUEEN&rate=WEB
+
+Standard Queen for tonight, $95 + tax. Check-in after 3pm. See you soon!
 
 **Guest:** thanks!
 
@@ -172,7 +184,11 @@
 
 **Guest:** Amanda Chen 555-7834
 
-**Agent:** Hold placed on 2 connecting Oceanview rooms July 15-20. I'll text you tomorrow to confirm or release them. Sound good?
+**Agent:** Perfect! Here's the booking link for when you're ready:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-07-15&checkout=2024-07-20&adults=4&children=3&rooms=2&room=OCEANVIEW-DOUBLE&rate=WEB&connecting=true
+
+I've noted your hold request - 2 connecting Oceanview rooms July 15-20, $1,350 total. I'll text you tomorrow to confirm or release them. Sound good?
 
 **Guest:** perfect thanks so much!
 
