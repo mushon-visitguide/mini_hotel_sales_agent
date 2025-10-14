@@ -1,0 +1,2678 @@
+This XML file does not appear to have any style information associated with it. The document tree is shown below.
+<wsdl:definitions xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/">
+<wsdl:types>
+<s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+<s:element name="HelloWorld">
+<s:complexType/>
+</s:element>
+<s:element name="HelloWorldResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="HelloWorldResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="HelloWorld2">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Room" type="tns:wsRoom"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsRoom">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iSubItemId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="BoardBase" type="tns:BoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="iAdults" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChilds" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iInfants" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="cUnitPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:simpleType name="BoardBase_t">
+<s:restriction base="s:string">
+<s:enumeration value="RO"/>
+<s:enumeration value="BB"/>
+<s:enumeration value="HB"/>
+<s:enumeration value="FB"/>
+<s:enumeration value="AI"/>
+</s:restriction>
+</s:simpleType>
+<s:element name="HelloWorld2Response">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="HelloWorld2Result" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="CheckPermmission">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChannelManager" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsAuthentication">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sUsrName" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sPwd" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="CheckPermmissionResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="CheckPermmissionResult" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="xmlDataRetrieve">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="eRetrieveType" type="tns:eDataRetrieveType_t"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtLastRetrieve" type="tns:wsLongDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:simpleType name="eDataRetrieveType_t">
+<s:restriction base="s:string">
+<s:enumeration value="ROOMS_CLIENTS"/>
+<s:enumeration value="TBL_ROOMS"/>
+<s:enumeration value="EXTRAS"/>
+<s:enumeration value="DVP"/>
+<s:enumeration value="RESERVATIONS"/>
+<s:enumeration value="RES_HEADER"/>
+<s:enumeration value="RES_LINES"/>
+<s:enumeration value="RES_ADDS"/>
+<s:enumeration value="RES_ACTV"/>
+</s:restriction>
+</s:simpleType>
+<s:complexType name="wsLongDate">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Year" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Month" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Day" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Hour" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Minute" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:element name="xmlDataRetrieveResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="xmlDataRetrieveResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="xmlMetaDataRetrieve">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="eRetrieveType" type="tns:eMetaDataRetrieve_t"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:simpleType name="eMetaDataRetrieve_t">
+<s:restriction base="s:string">
+<s:enumeration value="ROOM_TYPES"/>
+<s:enumeration value="ROOMS"/>
+<s:enumeration value="AGENTS"/>
+<s:enumeration value="COUPONS"/>
+<s:enumeration value="PRICE_LEVELS"/>
+<s:enumeration value="DEPARTMENTS"/>
+<s:enumeration value="ADVERTISERS"/>
+<s:enumeration value="SALES_SEGMENTS"/>
+<s:enumeration value="SELF_CUST_FIELD_0"/>
+<s:enumeration value="SELF_CUST_FIELD_1"/>
+<s:enumeration value="SELF_CUST_FIELD_2"/>
+<s:enumeration value="EXTRAS_ENGINE"/>
+<s:enumeration value="SERVICE_WORKERS"/>
+<s:enumeration value="TREATS"/>
+</s:restriction>
+</s:simpleType>
+<s:element name="xmlMetaDataRetrieveResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="xmlMetaDataRetrieveResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_Inventory">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Authentication" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Hotel_Id" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtLastRetrieve" type="tns:wsLongDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_InventoryResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_InventoryResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_RoomFcilities">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_RoomFcilitiesResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_RoomFcilitiesResult" type="tns:ArrayOfWsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="ArrayOfWsKeyValuePair">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsKeyValuePair" nillable="true" type="tns:wsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsKeyValuePair">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Key" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_HotelFcilities">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_HotelFcilitiesResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_HotelFcilitiesResult" type="tns:ArrayOfWsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_Cities">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_CitiesResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_CitiesResult" type="tns:ArrayOfWsCityInfo"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="ArrayOfWsCityInfo">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsCityInfo" nillable="true" type="tns:wsCityInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsCityInfo">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iCityId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iDistrictId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sName" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sName_1" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_Langs">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_LangsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_LangsResult" type="tns:ArrayOfWsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_Regions">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_RegionsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_RegionsResult" type="tns:ArrayOfWsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_Districts">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_DistrictsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_DistrictsResult" type="tns:ArrayOfWsKeyValuePair"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_HotelsList">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_HotelsListResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_HotelsListResult" type="tns:wsHotelsList_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsHotelsList_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="aHotels" type="tns:ArrayOfWsHotelInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsBookResult">
+<s:complexContent mixed="false">
+<s:extension base="tns:BCwsBookResult"/>
+</s:complexContent>
+</s:complexType>
+<s:complexType name="BCwsBookResult">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iErrorId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sErrorDescription" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iOrderId" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsHotelInfo">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsHotelInfo" nillable="true" type="tns:wsHotelInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsHotelInfo">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelCode" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Name" type="tns:ArrayOfWsKeyValuePair"/>
+<s:element minOccurs="0" maxOccurs="1" name="Desc" type="tns:ArrayOfWsKeyValuePair"/>
+<s:element minOccurs="1" maxOccurs="1" name="iCityId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="Images" type="tns:ArrayOfString"/>
+<s:element minOccurs="0" maxOccurs="1" name="Facilities" type="tns:ArrayOfInt"/>
+<s:element minOccurs="0" maxOccurs="1" name="RoomTypes" type="tns:ArrayOfWsHotelRoomInfo"/>
+<s:element minOccurs="0" maxOccurs="1" name="Address" type="tns:ArrayOfWsKeyValuePair"/>
+<s:element minOccurs="1" maxOccurs="1" name="fLatitude" type="s:double"/>
+<s:element minOccurs="1" maxOccurs="1" name="fLongitude" type="s:double"/>
+<s:element minOccurs="0" maxOccurs="1" name="Tel" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="WebSite" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfString">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfInt">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsHotelRoomInfo">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsHotelRoomInfo" nillable="true" type="tns:wsHotelRoomInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsHotelRoomInfo">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomTypeCode" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Name" type="tns:ArrayOfWsKeyValuePair"/>
+<s:element minOccurs="0" maxOccurs="1" name="Desc" type="tns:ArrayOfWsKeyValuePair"/>
+<s:element minOccurs="1" maxOccurs="1" name="iQty" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="bDorm" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxPersons" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxAdults" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxChilds" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxInfants" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="Images" type="tns:ArrayOfString"/>
+<s:element minOccurs="0" maxOccurs="1" name="Facilities" type="tns:ArrayOfInt"/>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_HotelsInventory">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_HotelsInventoryResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_HotelsInventoryResult" type="tns:wsHotelsInventory_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsHotelsInventory_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="aHotels" type="tns:ArrayOfWsHotelInventory"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsHotelInventory">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsHotelInventory" nillable="true" type="tns:wsHotelInventory"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsHotelInventory">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelCode" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="RoomTypes" type="tns:ArrayOfWsRoomTypeInventory"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsRoomTypeInventory">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsRoomTypeInventory" nillable="true" type="tns:wsRoomTypeInventory"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsRoomTypeInventory">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomTypeCode" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Lines" type="tns:ArrayOfInventoryLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfInventoryLine">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="InventoryLine" nillable="true" type="tns:InventoryLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="InventoryLine">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="dtDate" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="iVacancy" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Rates" type="tns:ArrayOfWsInventoryLineRate"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsDate">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Year" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Month" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Day" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsInventoryLineRate">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsInventoryLineRate" nillable="true" type="tns:wsInventoryLineRate"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsInventoryLineRate">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="eBoardBase" type="tns:eBoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="iAdultsIncInPrice" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="cSingle" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAddAdult" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAddChild" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMinNights" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMinNightsArrival" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxNights" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMaxNightsArrival" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="bClose" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bCloseCheckIn" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bCloseCheckOut" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bCloseCheckOutTomorrow" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:simpleType name="eBoardBase_t">
+<s:restriction base="s:string">
+<s:enumeration value="NotSet"/>
+<s:enumeration value="RO"/>
+<s:enumeration value="BB"/>
+<s:enumeration value="HB"/>
+<s:enumeration value="FB"/>
+</s:restriction>
+</s:simpleType>
+<s:element name="AgencyChannel_HotelInventory">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Hotel_Id" type="s:short"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannel_HotelInventoryResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannel_HotelInventoryResult" type="tns:wsHotelsInventory_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_HotelsInventory_Strict">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Request" type="tns:wsHotelInventoryRequest"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsHotelInventoryRequest">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Authentication" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Hotel" type="s:short"/>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_HotelsInventory_StrictResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_HotelsInventory_StrictResult" type="tns:wsHotelsInventory_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="AgencyChannels_SearchHotels">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="wsRequest" type="tns:wsSearchHorels_Request"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsSearchHorels_Request">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Authentication" type="tns:wsAuthentication"/>
+<s:element minOccurs="0" maxOccurs="1" name="Date_Start" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="iNights" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Agency" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ID_Region" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Hotel" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomTypeCode" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="eBoardBase" type="tns:eBoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="eBoardBaseOption" type="tns:eResultOption_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="eDomesticIncoming" type="tns:eDomesticIncoming_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="eRoomTypeCodeOption" type="tns:eResultOption_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="iAdults" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChilds" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iInfants" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="eCurrency" type="tns:eCurrency_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="bDailyPrice" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bVerbal" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:simpleType name="eResultOption_t">
+<s:restriction base="s:string">
+<s:enumeration value="Specific"/>
+<s:enumeration value="CheapestResult"/>
+<s:enumeration value="AllCombination"/>
+</s:restriction>
+</s:simpleType>
+<s:simpleType name="eDomesticIncoming_t">
+<s:restriction base="s:string">
+<s:enumeration value="Domestic"/>
+<s:enumeration value="Incoming"/>
+</s:restriction>
+</s:simpleType>
+<s:simpleType name="eCurrency_t">
+<s:restriction base="s:string">
+<s:enumeration value="ILS"/>
+<s:enumeration value="USD"/>
+</s:restriction>
+</s:simpleType>
+<s:element name="AgencyChannels_SearchHotelsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_SearchHotelsResult" type="tns:wsSearchHorels_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsSearchHorels_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="aHotels" type="tns:ArrayOfWsSearchHotel"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsSearchHotel">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsSearchHotel" nillable="true" type="tns:wsSearchHotel"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsSearchHotel">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelCode" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Rooms" type="tns:ArrayOfWsSearchHotelRoom"/>
+<s:element minOccurs="0" maxOccurs="1" name="Promotions" type="tns:ArrayOfWsPromotion"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsSearchHotelRoom">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsSearchHotelRoom" nillable="true" type="tns:wsSearchHotelRoom"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsSearchHotelRoom">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomSessionId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomTypeCode" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="eBoardBase" type="tns:eBoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="eCurrency" type="tns:eCurrency_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cFullPrice" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="aDailyPrices" type="tns:ArrayOfWsDailyPrice"/>
+<s:element minOccurs="1" maxOccurs="1" name="iAvailable" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Remarks2Agent" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Remarks2EndUser" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="CancellationPolicy" type="tns:wsCancellationPolicy"/>
+<s:element minOccurs="1" maxOccurs="1" name="iSaleId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iPackageId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="cRoomPrice" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsDailyPrice">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsDailyPrice" nillable="true" type="tns:wsDailyPrice"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsDailyPrice">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Date" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsCancellationPolicy">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iDays" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sPolicy" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsPromotion">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsPromotion" nillable="true" type="tns:wsPromotion"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsPromotion">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="ePromotionType" type="tns:ePromotionType_t"/>
+<s:element minOccurs="0" maxOccurs="1" name="sDesc" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Rooms" type="tns:ArrayOfWsSearchHotelRoom"/>
+</s:sequence>
+</s:complexType>
+<s:simpleType name="ePromotionType_t">
+<s:restriction base="s:string">
+<s:enumeration value="ForEveryOne"/>
+<s:enumeration value="FroSpecificPopulation_See_Remarks2Agent"/>
+</s:restriction>
+</s:simpleType>
+<s:element name="BookReservation">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="0" maxOccurs="1" name="wsRes" type="tns:wsReservation"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsReservation">
+<s:complexContent mixed="false">
+<s:extension base="tns:BCwsReservation"/>
+</s:complexContent>
+</s:complexType>
+<s:complexType name="BCwsReservation">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iChannelManager" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sChannelOrderId" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iAgentId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAgentName" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClient_Name" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClient_Tel1" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClient_EMail" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClient_Address" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClient_Address2" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="bClient_IsTurist" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bPriceWithNoVat" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="eClientLang" type="tns:eLang"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtStart" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="iNights" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Currency" type="tns:Currency_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="BoardBase" type="tns:BoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sPrivateRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="aRooms" type="tns:ArrayOfWsRoom"/>
+<s:element minOccurs="0" maxOccurs="1" name="aExtras" type="tns:ArrayOfWsExtra"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Hotel" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:simpleType name="eLang">
+<s:restriction base="s:string">
+<s:enumeration value="He"/>
+<s:enumeration value="En"/>
+</s:restriction>
+</s:simpleType>
+<s:simpleType name="Currency_t">
+<s:restriction base="s:string">
+<s:enumeration value="ILS"/>
+<s:enumeration value="USD"/>
+<s:enumeration value="EURO"/>
+</s:restriction>
+</s:simpleType>
+<s:complexType name="ArrayOfWsRoom">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsRoom" nillable="true" type="tns:wsRoom"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsExtra">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsExtra" nillable="true" type="tns:wsExtra"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsExtra">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iExtraId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iQty" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iQty_Child" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="cUnitPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cUnitPrice_Child" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:element name="BookReservationResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="BookReservationResult" type="tns:wsBookResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="BookReservation_2">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="0" maxOccurs="1" name="wsRes" type="tns:wsReservation2"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsReservation2">
+<s:complexContent mixed="false">
+<s:extension base="tns:wsReservation">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="CreditCard" type="tns:wsCreditCard"/>
+</s:sequence>
+</s:extension>
+</s:complexContent>
+</s:complexType>
+<s:complexType name="wsCreditCard">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="ExpMM" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="ExpYY" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Cvv" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Number" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Type" type="s:unsignedByte"/>
+<s:element minOccurs="0" maxOccurs="1" name="Id" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="BookReservation_2Response">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="BookReservation_2Result" type="tns:wsBookResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="UpdExistingReservation">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChannelManager" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="ResHeader" type="tns:wsRes_Header_Light"/>
+<s:element minOccurs="0" maxOccurs="1" name="aExtras" type="tns:ArrayOfWsRes_Extra_Light"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsRes_Header_Light">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iOrderId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sChnlReservationCode" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sPrivateRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sCheckinTime" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAgentOrderId" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iSelfCustFld_0" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iSelfCustFld_1" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iSelfCustFld_2" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sCountry_Alpha2Code" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="cExchangeRate" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="bPriceWithNoVat" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="eBoardBase" type="tns:eBoardBase_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sChnlReservationCode" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sRemark" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sPrivateRemark" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sCheckinTime" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sAgentOrderId" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_iSelfCustFld_0" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_iSelfCustFld_1" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_iSelfCustFld_2" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_sCountry_Alpha2Code" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_cExchangeRate" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_bPriceWithNoVat" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bSet_eBoardBase" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsRes_Extra_Light">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsRes_Extra_Light" nillable="true" type="tns:wsRes_Extra_Light"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsRes_Extra_Light">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iExtraId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iQty" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="cUnitPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cUnitDiscount" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="eCurrency" type="tns:eCurrency_t"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtValue" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRemark" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="UpdExistingReservationResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="UpdExistingReservationResult" type="tns:wsBookResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="CancelReservation">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChannelManager" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChnlMgrOrderId" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="CancelReservationResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="CancelReservationResult" type="tns:wsBookResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="UpdateVoucher">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChannelManager" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iEzgoOrderId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sVoucherId" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="UpdateVoucherResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="UpdateVoucherResult" type="tns:wsBookResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="dsOccRoomIds">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Token" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtStart" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtEnd" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="dsOccRoomIdsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="dsOccRoomIdsResult" type="tns:wsStrResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsStrResult">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iErrorId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="sErrorDescription" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="Calendar">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="CalRequest" type="tns:wsCalendar_Request"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsCalendar_Request">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iHotelId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomTypeCode" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMonth" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iYear" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="bWithLastDayOfPrevMonth" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:element name="CalendarResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="CalendarResult" type="tns:wsCalendar_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsCalendar_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="aCalDays" type="tns:ArrayOfWsCalendarDay"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsCalendarDay">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsCalendarDay" nillable="true" type="tns:wsCalendarDay"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsCalendarDay">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="dtDate" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="iVacancy" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMinStay" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="bCloseToCheckIn" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="bCloseToCheckOut" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="cPrice" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_Handshake">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Handshake" type="tns:EzHandshake"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzHandshake">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="GuestId" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_HandshakeResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="ChargeRoom_HandshakeResult" type="tns:EzHandshakeResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzHandshakeResult">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="OrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ResId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Tel" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Result" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="Limit" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="Error" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="HasCCs" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_ILS">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Charge" type="tns:EzCahrge"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzCahrge">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="OrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ResId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Remark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Extras" type="tns:ArrayOfEzExtra"/>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzExtra">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzExtra" nillable="true" type="tns:EzExtra"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzExtra">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="EzGoExtraId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="UnitPrice" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="Qty" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="TotalDiscount" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="Desc" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_ILSResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="ChargeRoom_ILSResult" type="tns:EzCahrgeResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzCahrgeResult">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Result" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="EzGoRef" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Error" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_MealInfo">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="MealInfo" type="tns:EzMealInfo"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzMealInfo">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="OrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ResId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_MealInfoResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="ChargeRoom_MealInfoResult" type="tns:EzMealsResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzMealsResult">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Result" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="Error" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Meals" type="tns:ArrayOfEzMeal"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzMeal">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzMeal" nillable="true" type="tns:EzMeal"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzMeal">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Desc" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Guests" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="OrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ResId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="MealId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="MealType" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_ConsumeMeal">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="MealInfo" type="tns:EzConsumeMeal"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzConsumeMeal">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="OrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="ResId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="MealId" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:element name="ChargeRoom_ConsumeMealResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="ChargeRoom_ConsumeMealResult" type="tns:EzConsumeMealResult"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzConsumeMealResult">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="Result" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="Error" type="s:int"/>
+</s:sequence>
+</s:complexType>
+<s:element name="DVP_Retrieve">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="User" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Pass" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtLastRetrieve" type="tns:wsLongDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DVP_RetrieveResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="DVP_RetrieveResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DVP_HistoryRetrieve">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="User" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Pass" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtLastRetrieve" type="tns:wsLongDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DVP_HistoryRetrieveResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="DVP_HistoryRetrieveResult" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DVP_UpdPrice">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="UpdReq" type="tns:EzPriceUpdReq"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzPriceUpdReq">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="User" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="Pass" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="HotelId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="Upds" type="tns:ArrayOfEzPriceUpd"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzPriceUpd">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzPriceUpd" nillable="true" type="tns:EzPriceUpd"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzPriceUpd">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="ChnlRoomType" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="RoomType" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Date" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="Currency" type="tns:Currency_t"/>
+<s:element minOccurs="1" maxOccurs="1" name="Price" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="VatIcluded" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:element name="DVP_UpdPriceResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="DVP_UpdPriceResult" type="tns:EzResponse"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzResponse">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Result" type="s:boolean"/>
+<s:element minOccurs="0" maxOccurs="1" name="Desc" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="WuBook_AddRatePlan">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="bLocalHost" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iResItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRatePlanDesc" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="WuBook_AddRatePlanResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="WuBook_AddRatePlanResult" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="WuBook_AddRestrictionPlan">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="bLocalHost" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iResItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRestrictionPlanDesc" type="s:string"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="WuBook_AddRestrictionPlanResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="WuBook_AddRestrictionPlanResult" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DeleteRoom_From_WuBook">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="bLocalHost" type="s:boolean"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="iResItemId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iWuBookRoomId" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="DeleteRoom_From_WuBookResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="DeleteRoom_From_WuBookResult" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="IncomeRpt">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Request" type="tns:ReportRequest"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="ReportRequest">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="Start" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="End" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+<s:element name="IncomeRptResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="IncomeRptResult" type="tns:wsDataSet_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsDataSet_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="Result">
+<s:complexType>
+<s:sequence>
+<s:element ref="s:schema"/>
+<s:any/>
+</s:sequence>
+</s:complexType>
+</s:element>
+</s:sequence>
+</s:complexType>
+<s:element name="MoveIn">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtStart" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtEnd" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="MoveInResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="MoveInResult" type="tns:wsMoveIn_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsMoveIn_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:ArrayOfWsMoveInLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsMoveInLine">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsMoveInLine" nillable="true" type="tns:wsMoveInLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsMoveInLine">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="sMoveType" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRef1" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRef2" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="dtRef1" type="s:dateTime"/>
+<s:element minOccurs="1" maxOccurs="1" name="dtValue" type="s:dateTime"/>
+<s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sDetails" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccDebit1" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccDebit2" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccCredit1" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccCredit2" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccDebit1" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccDebit2" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccCredit1" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccCredit2" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccDebit1_Forign" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccDebit2_Forign" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccCredit1_Forign" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccCredit2_Forign" type="s:decimal"/>
+<s:element minOccurs="1" maxOccurs="1" name="dtValue3" type="s:dateTime"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRef3" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="dQty" type="s:decimal"/>
+</s:sequence>
+</s:complexType>
+<s:element name="MoveInX">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtStart" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtEnd" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="MoveInXResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="MoveInXResult" type="tns:wsMoveInX_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsMoveInX_Response">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Error" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:ArrayOfWsMoveInXLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsMoveInXLine">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsMoveInXLine" nillable="true" type="tns:wsMoveInXLine"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsMoveInXLine">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="dQty" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRef1" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="dtValue" type="s:dateTime"/>
+<s:element minOccurs="1" maxOccurs="1" name="dtRef1" type="s:dateTime"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccDebit1" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccDebit1" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="sAccCredit1" type="s:string"/>
+<s:element minOccurs="1" maxOccurs="1" name="cAccCredit1" type="s:decimal"/>
+<s:element minOccurs="0" maxOccurs="1" name="sProfitCenter" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="MoveInY">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtStart" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="dtEnd" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="MoveInYResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="MoveInYResult" type="tns:wsMoveIn_Response"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="Dining_Report">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Request" type="tns:EzDiningReportRequest"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzDiningReportRequest">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="Start" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="End" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+<s:element name="Dining_ReportResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Dining_ReportResult" type="tns:EzDiningReport"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="EzDiningReport">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Days" type="tns:ArrayOfEzMealDayRpt"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzMealDayRpt">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzMealDayRpt" nillable="true" type="tns:EzMealDayRpt"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzMealDayRpt">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Rooms" type="tns:ArrayOfEzMealRoomRpt"/>
+<s:element minOccurs="1" maxOccurs="1" name="Date" type="s:dateTime"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzMealRoomRpt">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzMealRoomRpt" nillable="true" type="tns:EzMealRoomRpt"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzMealRoomRpt">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iClientId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iOrderId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iRoomId" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iSubItemId" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Meals" type="tns:ArrayOfEzMealRpt"/>
+<s:element minOccurs="0" maxOccurs="1" name="sClientName" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sKitchenRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sOPrivateRemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sORemark" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRoomName" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sSubItemName" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfEzMealRpt">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="EzMealRpt" nillable="true" type="tns:EzMealRpt"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="EzMealRpt">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="iAdults" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iChilds" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iInfants" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="iMealId" type="s:short"/>
+<s:element minOccurs="0" maxOccurs="1" name="sMealDesc" type="s:string"/>
+<s:element minOccurs="0" maxOccurs="1" name="sRemark" type="s:string"/>
+</s:sequence>
+</s:complexType>
+<s:element name="dsOrderDetails">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Auth" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="iItemId" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="iOrderId" type="s:int"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:element name="dsOrderDetailsResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="dsOrderDetailsResult" type="tns:ArrayOfDataSet"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="ArrayOfDataSet">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="DataSet" nillable="true">
+<s:complexType>
+<s:sequence>
+<s:element ref="s:schema"/>
+<s:any/>
+</s:sequence>
+</s:complexType>
+</s:element>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_ReservationInfo">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Request" type="tns:wsReservationInfoRequest"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsReservationInfoRequest">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Authentication" type="tns:wsAuthentication"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_AgencyChannel" type="s:unsignedByte"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Hotel" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Order" type="s:int"/>
+<s:element minOccurs="0" maxOccurs="1" name="Date_Start" type="tns:wsDate"/>
+<s:element minOccurs="0" maxOccurs="1" name="Date_End" type="tns:wsDate"/>
+<s:element minOccurs="1" maxOccurs="1" name="Status_Info" type="s:boolean"/>
+</s:sequence>
+</s:complexType>
+<s:element name="AgencyChannels_ReservationInfoResponse">
+<s:complexType>
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="AgencyChannels_ReservationInfoResult" type="tns:wsReservationInfoResponse"/>
+</s:sequence>
+</s:complexType>
+</s:element>
+<s:complexType name="wsReservationInfoResponse">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:wsBookResult"/>
+<s:element minOccurs="0" maxOccurs="1" name="Info" type="tns:ArrayOfWsReservationInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="ArrayOfWsReservationInfo">
+<s:sequence>
+<s:element minOccurs="0" maxOccurs="unbounded" name="wsReservationInfo" nillable="true" type="tns:wsReservationInfo"/>
+</s:sequence>
+</s:complexType>
+<s:complexType name="wsReservationInfo">
+<s:sequence>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Hotel" type="s:short"/>
+<s:element minOccurs="1" maxOccurs="1" name="Id_Order" type="s:int"/>
+<s:element minOccurs="1" maxOccurs="1" name="Status" type="s:unsignedByte"/>
+<s:element minOccurs="0" maxOccurs="1" name="Date_Created" type="tns:wsDate"/>
+</s:sequence>
+</s:complexType>
+<s:element name="WhoAreYou">
+<s:complexType/>
+</s:element>
+<s:element name="WhoAreYouResponse">
+<s:complexType/>
+</s:element>
+</s:schema>
+</wsdl:types>
+<wsdl:message name="HelloWorldSoapIn">
+<wsdl:part name="parameters" element="tns:HelloWorld"/>
+</wsdl:message>
+<wsdl:message name="HelloWorldSoapOut">
+<wsdl:part name="parameters" element="tns:HelloWorldResponse"/>
+</wsdl:message>
+<wsdl:message name="HelloWorld2SoapIn">
+<wsdl:part name="parameters" element="tns:HelloWorld2"/>
+</wsdl:message>
+<wsdl:message name="HelloWorld2SoapOut">
+<wsdl:part name="parameters" element="tns:HelloWorld2Response"/>
+</wsdl:message>
+<wsdl:message name="CheckPermmissionSoapIn">
+<wsdl:part name="parameters" element="tns:CheckPermmission"/>
+</wsdl:message>
+<wsdl:message name="CheckPermmissionSoapOut">
+<wsdl:part name="parameters" element="tns:CheckPermmissionResponse"/>
+</wsdl:message>
+<wsdl:message name="xmlDataRetrieveSoapIn">
+<wsdl:part name="parameters" element="tns:xmlDataRetrieve"/>
+</wsdl:message>
+<wsdl:message name="xmlDataRetrieveSoapOut">
+<wsdl:part name="parameters" element="tns:xmlDataRetrieveResponse"/>
+</wsdl:message>
+<wsdl:message name="xmlMetaDataRetrieveSoapIn">
+<wsdl:part name="parameters" element="tns:xmlMetaDataRetrieve"/>
+</wsdl:message>
+<wsdl:message name="xmlMetaDataRetrieveSoapOut">
+<wsdl:part name="parameters" element="tns:xmlMetaDataRetrieveResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_InventorySoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_Inventory"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_InventorySoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_InventoryResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_RoomFcilitiesSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_RoomFcilities"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_RoomFcilitiesSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_RoomFcilitiesResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelFcilitiesSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelFcilities"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelFcilitiesSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelFcilitiesResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_CitiesSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_Cities"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_CitiesSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_CitiesResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_LangsSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_Langs"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_LangsSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_LangsResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_RegionsSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_Regions"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_RegionsSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_RegionsResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_DistrictsSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_Districts"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_DistrictsSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_DistrictsResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsListSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsList"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsListSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsListResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsInventorySoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsInventory"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsInventorySoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsInventoryResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannel_HotelInventorySoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannel_HotelInventory"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannel_HotelInventorySoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannel_HotelInventoryResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsInventory_StrictSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsInventory_Strict"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_HotelsInventory_StrictSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_HotelsInventory_StrictResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_SearchHotelsSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_SearchHotels"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_SearchHotelsSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_SearchHotelsResponse"/>
+</wsdl:message>
+<wsdl:message name="BookReservationSoapIn">
+<wsdl:part name="parameters" element="tns:BookReservation"/>
+</wsdl:message>
+<wsdl:message name="BookReservationSoapOut">
+<wsdl:part name="parameters" element="tns:BookReservationResponse"/>
+</wsdl:message>
+<wsdl:message name="BookReservation_2SoapIn">
+<wsdl:part name="parameters" element="tns:BookReservation_2"/>
+</wsdl:message>
+<wsdl:message name="BookReservation_2SoapOut">
+<wsdl:part name="parameters" element="tns:BookReservation_2Response"/>
+</wsdl:message>
+<wsdl:message name="UpdExistingReservationSoapIn">
+<wsdl:part name="parameters" element="tns:UpdExistingReservation"/>
+</wsdl:message>
+<wsdl:message name="UpdExistingReservationSoapOut">
+<wsdl:part name="parameters" element="tns:UpdExistingReservationResponse"/>
+</wsdl:message>
+<wsdl:message name="CancelReservationSoapIn">
+<wsdl:part name="parameters" element="tns:CancelReservation"/>
+</wsdl:message>
+<wsdl:message name="CancelReservationSoapOut">
+<wsdl:part name="parameters" element="tns:CancelReservationResponse"/>
+</wsdl:message>
+<wsdl:message name="UpdateVoucherSoapIn">
+<wsdl:part name="parameters" element="tns:UpdateVoucher"/>
+</wsdl:message>
+<wsdl:message name="UpdateVoucherSoapOut">
+<wsdl:part name="parameters" element="tns:UpdateVoucherResponse"/>
+</wsdl:message>
+<wsdl:message name="dsOccRoomIdsSoapIn">
+<wsdl:part name="parameters" element="tns:dsOccRoomIds"/>
+</wsdl:message>
+<wsdl:message name="dsOccRoomIdsSoapOut">
+<wsdl:part name="parameters" element="tns:dsOccRoomIdsResponse"/>
+</wsdl:message>
+<wsdl:message name="CalendarSoapIn">
+<wsdl:part name="parameters" element="tns:Calendar"/>
+</wsdl:message>
+<wsdl:message name="CalendarSoapOut">
+<wsdl:part name="parameters" element="tns:CalendarResponse"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_HandshakeSoapIn">
+<wsdl:part name="parameters" element="tns:ChargeRoom_Handshake"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_HandshakeSoapOut">
+<wsdl:part name="parameters" element="tns:ChargeRoom_HandshakeResponse"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_ILSSoapIn">
+<wsdl:part name="parameters" element="tns:ChargeRoom_ILS"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_ILSSoapOut">
+<wsdl:part name="parameters" element="tns:ChargeRoom_ILSResponse"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_MealInfoSoapIn">
+<wsdl:part name="parameters" element="tns:ChargeRoom_MealInfo"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_MealInfoSoapOut">
+<wsdl:part name="parameters" element="tns:ChargeRoom_MealInfoResponse"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_ConsumeMealSoapIn">
+<wsdl:part name="parameters" element="tns:ChargeRoom_ConsumeMeal"/>
+</wsdl:message>
+<wsdl:message name="ChargeRoom_ConsumeMealSoapOut">
+<wsdl:part name="parameters" element="tns:ChargeRoom_ConsumeMealResponse"/>
+</wsdl:message>
+<wsdl:message name="DVP_RetrieveSoapIn">
+<wsdl:part name="parameters" element="tns:DVP_Retrieve"/>
+</wsdl:message>
+<wsdl:message name="DVP_RetrieveSoapOut">
+<wsdl:part name="parameters" element="tns:DVP_RetrieveResponse"/>
+</wsdl:message>
+<wsdl:message name="DVP_HistoryRetrieveSoapIn">
+<wsdl:part name="parameters" element="tns:DVP_HistoryRetrieve"/>
+</wsdl:message>
+<wsdl:message name="DVP_HistoryRetrieveSoapOut">
+<wsdl:part name="parameters" element="tns:DVP_HistoryRetrieveResponse"/>
+</wsdl:message>
+<wsdl:message name="DVP_UpdPriceSoapIn">
+<wsdl:part name="parameters" element="tns:DVP_UpdPrice"/>
+</wsdl:message>
+<wsdl:message name="DVP_UpdPriceSoapOut">
+<wsdl:part name="parameters" element="tns:DVP_UpdPriceResponse"/>
+</wsdl:message>
+<wsdl:message name="WuBook_AddRatePlanSoapIn">
+<wsdl:part name="parameters" element="tns:WuBook_AddRatePlan"/>
+</wsdl:message>
+<wsdl:message name="WuBook_AddRatePlanSoapOut">
+<wsdl:part name="parameters" element="tns:WuBook_AddRatePlanResponse"/>
+</wsdl:message>
+<wsdl:message name="WuBook_AddRestrictionPlanSoapIn">
+<wsdl:part name="parameters" element="tns:WuBook_AddRestrictionPlan"/>
+</wsdl:message>
+<wsdl:message name="WuBook_AddRestrictionPlanSoapOut">
+<wsdl:part name="parameters" element="tns:WuBook_AddRestrictionPlanResponse"/>
+</wsdl:message>
+<wsdl:message name="DeleteRoom_From_WuBookSoapIn">
+<wsdl:part name="parameters" element="tns:DeleteRoom_From_WuBook"/>
+</wsdl:message>
+<wsdl:message name="DeleteRoom_From_WuBookSoapOut">
+<wsdl:part name="parameters" element="tns:DeleteRoom_From_WuBookResponse"/>
+</wsdl:message>
+<wsdl:message name="IncomeRptSoapIn">
+<wsdl:part name="parameters" element="tns:IncomeRpt"/>
+</wsdl:message>
+<wsdl:message name="IncomeRptSoapOut">
+<wsdl:part name="parameters" element="tns:IncomeRptResponse"/>
+</wsdl:message>
+<wsdl:message name="MoveInSoapIn">
+<wsdl:part name="parameters" element="tns:MoveIn"/>
+</wsdl:message>
+<wsdl:message name="MoveInSoapOut">
+<wsdl:part name="parameters" element="tns:MoveInResponse"/>
+</wsdl:message>
+<wsdl:message name="MoveInXSoapIn">
+<wsdl:part name="parameters" element="tns:MoveInX"/>
+</wsdl:message>
+<wsdl:message name="MoveInXSoapOut">
+<wsdl:part name="parameters" element="tns:MoveInXResponse"/>
+</wsdl:message>
+<wsdl:message name="MoveInYSoapIn">
+<wsdl:part name="parameters" element="tns:MoveInY"/>
+</wsdl:message>
+<wsdl:message name="MoveInYSoapOut">
+<wsdl:part name="parameters" element="tns:MoveInYResponse"/>
+</wsdl:message>
+<wsdl:message name="Dining_ReportSoapIn">
+<wsdl:part name="parameters" element="tns:Dining_Report"/>
+</wsdl:message>
+<wsdl:message name="Dining_ReportSoapOut">
+<wsdl:part name="parameters" element="tns:Dining_ReportResponse"/>
+</wsdl:message>
+<wsdl:message name="dsOrderDetailsSoapIn">
+<wsdl:part name="parameters" element="tns:dsOrderDetails"/>
+</wsdl:message>
+<wsdl:message name="dsOrderDetailsSoapOut">
+<wsdl:part name="parameters" element="tns:dsOrderDetailsResponse"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_ReservationInfoSoapIn">
+<wsdl:part name="parameters" element="tns:AgencyChannels_ReservationInfo"/>
+</wsdl:message>
+<wsdl:message name="AgencyChannels_ReservationInfoSoapOut">
+<wsdl:part name="parameters" element="tns:AgencyChannels_ReservationInfoResponse"/>
+</wsdl:message>
+<wsdl:message name="WhoAreYouSoapIn">
+<wsdl:part name="parameters" element="tns:WhoAreYou"/>
+</wsdl:message>
+<wsdl:message name="WhoAreYouSoapOut">
+<wsdl:part name="parameters" element="tns:WhoAreYouResponse"/>
+</wsdl:message>
+<wsdl:portType name="ServiceSoap">
+<wsdl:operation name="HelloWorld">
+<wsdl:input message="tns:HelloWorldSoapIn"/>
+<wsdl:output message="tns:HelloWorldSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="HelloWorld2">
+<wsdl:input message="tns:HelloWorld2SoapIn"/>
+<wsdl:output message="tns:HelloWorld2SoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="CheckPermmission">
+<wsdl:input message="tns:CheckPermmissionSoapIn"/>
+<wsdl:output message="tns:CheckPermmissionSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="xmlDataRetrieve">
+<wsdl:input message="tns:xmlDataRetrieveSoapIn"/>
+<wsdl:output message="tns:xmlDataRetrieveSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="xmlMetaDataRetrieve">
+<wsdl:input message="tns:xmlMetaDataRetrieveSoapIn"/>
+<wsdl:output message="tns:xmlMetaDataRetrieveSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Inventory">
+<wsdl:input message="tns:AgencyChannels_InventorySoapIn"/>
+<wsdl:output message="tns:AgencyChannels_InventorySoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_RoomFcilities">
+<wsdl:input message="tns:AgencyChannels_RoomFcilitiesSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_RoomFcilitiesSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelFcilities">
+<wsdl:input message="tns:AgencyChannels_HotelFcilitiesSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_HotelFcilitiesSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Cities">
+<wsdl:input message="tns:AgencyChannels_CitiesSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_CitiesSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Langs">
+<wsdl:input message="tns:AgencyChannels_LangsSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_LangsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Regions">
+<wsdl:input message="tns:AgencyChannels_RegionsSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_RegionsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Districts">
+<wsdl:input message="tns:AgencyChannels_DistrictsSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_DistrictsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsList">
+<wsdl:input message="tns:AgencyChannels_HotelsListSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_HotelsListSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory">
+<wsdl:input message="tns:AgencyChannels_HotelsInventorySoapIn"/>
+<wsdl:output message="tns:AgencyChannels_HotelsInventorySoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannel_HotelInventory">
+<wsdl:input message="tns:AgencyChannel_HotelInventorySoapIn"/>
+<wsdl:output message="tns:AgencyChannel_HotelInventorySoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory_Strict">
+<wsdl:input message="tns:AgencyChannels_HotelsInventory_StrictSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_HotelsInventory_StrictSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_SearchHotels">
+<wsdl:input message="tns:AgencyChannels_SearchHotelsSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_SearchHotelsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="BookReservation">
+<wsdl:input message="tns:BookReservationSoapIn"/>
+<wsdl:output message="tns:BookReservationSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="BookReservation_2">
+<wsdl:input message="tns:BookReservation_2SoapIn"/>
+<wsdl:output message="tns:BookReservation_2SoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="UpdExistingReservation">
+<wsdl:input message="tns:UpdExistingReservationSoapIn"/>
+<wsdl:output message="tns:UpdExistingReservationSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="CancelReservation">
+<wsdl:input message="tns:CancelReservationSoapIn"/>
+<wsdl:output message="tns:CancelReservationSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="UpdateVoucher">
+<wsdl:input message="tns:UpdateVoucherSoapIn"/>
+<wsdl:output message="tns:UpdateVoucherSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="dsOccRoomIds">
+<wsdl:input message="tns:dsOccRoomIdsSoapIn"/>
+<wsdl:output message="tns:dsOccRoomIdsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="Calendar">
+<wsdl:input message="tns:CalendarSoapIn"/>
+<wsdl:output message="tns:CalendarSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_Handshake">
+<wsdl:input message="tns:ChargeRoom_HandshakeSoapIn"/>
+<wsdl:output message="tns:ChargeRoom_HandshakeSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ILS">
+<wsdl:input message="tns:ChargeRoom_ILSSoapIn"/>
+<wsdl:output message="tns:ChargeRoom_ILSSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_MealInfo">
+<wsdl:input message="tns:ChargeRoom_MealInfoSoapIn"/>
+<wsdl:output message="tns:ChargeRoom_MealInfoSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ConsumeMeal">
+<wsdl:input message="tns:ChargeRoom_ConsumeMealSoapIn"/>
+<wsdl:output message="tns:ChargeRoom_ConsumeMealSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="DVP_Retrieve">
+<wsdl:input message="tns:DVP_RetrieveSoapIn"/>
+<wsdl:output message="tns:DVP_RetrieveSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="DVP_HistoryRetrieve">
+<wsdl:input message="tns:DVP_HistoryRetrieveSoapIn"/>
+<wsdl:output message="tns:DVP_HistoryRetrieveSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="DVP_UpdPrice">
+<wsdl:input message="tns:DVP_UpdPriceSoapIn"/>
+<wsdl:output message="tns:DVP_UpdPriceSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRatePlan">
+<wsdl:input message="tns:WuBook_AddRatePlanSoapIn"/>
+<wsdl:output message="tns:WuBook_AddRatePlanSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRestrictionPlan">
+<wsdl:input message="tns:WuBook_AddRestrictionPlanSoapIn"/>
+<wsdl:output message="tns:WuBook_AddRestrictionPlanSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="DeleteRoom_From_WuBook">
+<wsdl:input message="tns:DeleteRoom_From_WuBookSoapIn"/>
+<wsdl:output message="tns:DeleteRoom_From_WuBookSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="IncomeRpt">
+<wsdl:input message="tns:IncomeRptSoapIn"/>
+<wsdl:output message="tns:IncomeRptSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="MoveIn">
+<wsdl:input message="tns:MoveInSoapIn"/>
+<wsdl:output message="tns:MoveInSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="MoveInX">
+<wsdl:input message="tns:MoveInXSoapIn"/>
+<wsdl:output message="tns:MoveInXSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="MoveInY">
+<wsdl:input message="tns:MoveInYSoapIn"/>
+<wsdl:output message="tns:MoveInYSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="Dining_Report">
+<wsdl:input message="tns:Dining_ReportSoapIn"/>
+<wsdl:output message="tns:Dining_ReportSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="dsOrderDetails">
+<wsdl:input message="tns:dsOrderDetailsSoapIn"/>
+<wsdl:output message="tns:dsOrderDetailsSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_ReservationInfo">
+<wsdl:input message="tns:AgencyChannels_ReservationInfoSoapIn"/>
+<wsdl:output message="tns:AgencyChannels_ReservationInfoSoapOut"/>
+</wsdl:operation>
+<wsdl:operation name="WhoAreYou">
+<wsdl:input message="tns:WhoAreYouSoapIn"/>
+<wsdl:output message="tns:WhoAreYouSoapOut"/>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="ServiceSoap" type="tns:ServiceSoap">
+<soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="HelloWorld">
+<soap:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="HelloWorld2">
+<soap:operation soapAction="http://tempuri.org/HelloWorld2" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="CheckPermmission">
+<soap:operation soapAction="http://tempuri.org/CheckPermmission" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="xmlDataRetrieve">
+<soap:operation soapAction="http://tempuri.org/xmlDataRetrieve" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="xmlMetaDataRetrieve">
+<soap:operation soapAction="http://tempuri.org/xmlMetaDataRetrieve" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Inventory">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_Inventory" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_RoomFcilities">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_RoomFcilities" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelFcilities">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_HotelFcilities" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Cities">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_Cities" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Langs">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_Langs" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Regions">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_Regions" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Districts">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_Districts" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsList">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_HotelsList" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_HotelsInventory" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannel_HotelInventory">
+<soap:operation soapAction="http://tempuri.org/AgencyChannel_HotelInventory" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory_Strict">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_HotelsInventory_Strict" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_SearchHotels">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_SearchHotels" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="BookReservation">
+<soap:operation soapAction="http://tempuri.org/BookReservation" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="BookReservation_2">
+<soap:operation soapAction="http://tempuri.org/BookReservation_2" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="UpdExistingReservation">
+<soap:operation soapAction="http://tempuri.org/UpdExistingReservation" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="CancelReservation">
+<soap:operation soapAction="http://tempuri.org/CancelReservation" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="UpdateVoucher">
+<soap:operation soapAction="http://tempuri.org/UpdateVoucher" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="dsOccRoomIds">
+<soap:operation soapAction="http://tempuri.org/dsOccRoomIds" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Calendar">
+<soap:operation soapAction="http://tempuri.org/Calendar" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_Handshake">
+<soap:operation soapAction="http://tempuri.org/ChargeRoom_Handshake" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ILS">
+<soap:operation soapAction="http://tempuri.org/ChargeRoom_ILS" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_MealInfo">
+<soap:operation soapAction="http://tempuri.org/ChargeRoom_MealInfo" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ConsumeMeal">
+<soap:operation soapAction="http://tempuri.org/ChargeRoom_ConsumeMeal" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_Retrieve">
+<soap:operation soapAction="http://tempuri.org/DVP_Retrieve" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_HistoryRetrieve">
+<soap:operation soapAction="http://tempuri.org/DVP_HistoryRetrieve" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_UpdPrice">
+<soap:operation soapAction="http://tempuri.org/DVP_UpdPrice" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRatePlan">
+<soap:operation soapAction="http://tempuri.org/WuBook_AddRatePlan" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRestrictionPlan">
+<soap:operation soapAction="http://tempuri.org/WuBook_AddRestrictionPlan" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DeleteRoom_From_WuBook">
+<soap:operation soapAction="http://tempuri.org/DeleteRoom_From_WuBook" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="IncomeRpt">
+<soap:operation soapAction="http://tempuri.org/IncomeRpt" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveIn">
+<soap:operation soapAction="http://tempuri.org/MoveIn" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveInX">
+<soap:operation soapAction="http://tempuri.org/MoveInX" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveInY">
+<soap:operation soapAction="http://tempuri.org/MoveInY" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Dining_Report">
+<soap:operation soapAction="http://tempuri.org/Dining_Report" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="dsOrderDetails">
+<soap:operation soapAction="http://tempuri.org/dsOrderDetails" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_ReservationInfo">
+<soap:operation soapAction="http://tempuri.org/AgencyChannels_ReservationInfo" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WhoAreYou">
+<soap:operation soapAction="http://tempuri.org/WhoAreYou" style="document"/>
+<wsdl:input>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:binding name="ServiceSoap12" type="tns:ServiceSoap">
+<soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="HelloWorld">
+<soap12:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="HelloWorld2">
+<soap12:operation soapAction="http://tempuri.org/HelloWorld2" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="CheckPermmission">
+<soap12:operation soapAction="http://tempuri.org/CheckPermmission" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="xmlDataRetrieve">
+<soap12:operation soapAction="http://tempuri.org/xmlDataRetrieve" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="xmlMetaDataRetrieve">
+<soap12:operation soapAction="http://tempuri.org/xmlMetaDataRetrieve" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Inventory">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_Inventory" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_RoomFcilities">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_RoomFcilities" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelFcilities">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_HotelFcilities" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Cities">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_Cities" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Langs">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_Langs" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Regions">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_Regions" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_Districts">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_Districts" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsList">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_HotelsList" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_HotelsInventory" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannel_HotelInventory">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannel_HotelInventory" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_HotelsInventory_Strict">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_HotelsInventory_Strict" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_SearchHotels">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_SearchHotels" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="BookReservation">
+<soap12:operation soapAction="http://tempuri.org/BookReservation" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="BookReservation_2">
+<soap12:operation soapAction="http://tempuri.org/BookReservation_2" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="UpdExistingReservation">
+<soap12:operation soapAction="http://tempuri.org/UpdExistingReservation" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="CancelReservation">
+<soap12:operation soapAction="http://tempuri.org/CancelReservation" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="UpdateVoucher">
+<soap12:operation soapAction="http://tempuri.org/UpdateVoucher" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="dsOccRoomIds">
+<soap12:operation soapAction="http://tempuri.org/dsOccRoomIds" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Calendar">
+<soap12:operation soapAction="http://tempuri.org/Calendar" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_Handshake">
+<soap12:operation soapAction="http://tempuri.org/ChargeRoom_Handshake" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ILS">
+<soap12:operation soapAction="http://tempuri.org/ChargeRoom_ILS" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_MealInfo">
+<soap12:operation soapAction="http://tempuri.org/ChargeRoom_MealInfo" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="ChargeRoom_ConsumeMeal">
+<soap12:operation soapAction="http://tempuri.org/ChargeRoom_ConsumeMeal" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_Retrieve">
+<soap12:operation soapAction="http://tempuri.org/DVP_Retrieve" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_HistoryRetrieve">
+<soap12:operation soapAction="http://tempuri.org/DVP_HistoryRetrieve" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DVP_UpdPrice">
+<soap12:operation soapAction="http://tempuri.org/DVP_UpdPrice" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRatePlan">
+<soap12:operation soapAction="http://tempuri.org/WuBook_AddRatePlan" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WuBook_AddRestrictionPlan">
+<soap12:operation soapAction="http://tempuri.org/WuBook_AddRestrictionPlan" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="DeleteRoom_From_WuBook">
+<soap12:operation soapAction="http://tempuri.org/DeleteRoom_From_WuBook" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="IncomeRpt">
+<soap12:operation soapAction="http://tempuri.org/IncomeRpt" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveIn">
+<soap12:operation soapAction="http://tempuri.org/MoveIn" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveInX">
+<soap12:operation soapAction="http://tempuri.org/MoveInX" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="MoveInY">
+<soap12:operation soapAction="http://tempuri.org/MoveInY" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="Dining_Report">
+<soap12:operation soapAction="http://tempuri.org/Dining_Report" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="dsOrderDetails">
+<soap12:operation soapAction="http://tempuri.org/dsOrderDetails" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="AgencyChannels_ReservationInfo">
+<soap12:operation soapAction="http://tempuri.org/AgencyChannels_ReservationInfo" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="WhoAreYou">
+<soap12:operation soapAction="http://tempuri.org/WhoAreYou" style="document"/>
+<wsdl:input>
+<soap12:body use="literal"/>
+</wsdl:input>
+<wsdl:output>
+<soap12:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="Service">
+<wsdl:port name="ServiceSoap" binding="tns:ServiceSoap">
+<soap:address location="https://onlineres.ezgo.co.il/service.asmx"/>
+</wsdl:port>
+<wsdl:port name="ServiceSoap12" binding="tns:ServiceSoap12">
+<soap12:address location="https://onlineres.ezgo.co.il/service.asmx"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

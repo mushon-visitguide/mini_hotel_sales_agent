@@ -1,7 +1,8 @@
 """Abstract base class for Property Management System integrations"""
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
+from time import time
 from ..models.room import RoomType, Room
 from ..models.availability import AvailabilityResponse
 
@@ -15,7 +16,7 @@ class PMSClient(ABC):
     and limitations, which should be documented in their specific implementations.
     """
 
-    def __init__(self, username: str, password: str, hotel_id: str):
+    def __init__(self, username: str, password: str, hotel_id: str, cache_ttl_seconds: int = 300):
         """
         Initialize the PMS client.
 
@@ -23,10 +24,13 @@ class PMSClient(ABC):
             username: Authentication username
             password: Authentication password
             hotel_id: Unique identifier for the hotel in the PMS
+            cache_ttl_seconds: Cache time-to-live in seconds (default: 300 = 5 minutes)
         """
         self.username = username
         self.password = password
         self.hotel_id = hotel_id
+        self._cache_ttl_seconds = cache_ttl_seconds
+        self._availability_cache: Dict[Tuple, Tuple[float, AvailabilityResponse]] = {}
 
     @abstractmethod
     def get_room_types(self) -> List[RoomType]:
@@ -187,6 +191,48 @@ class PMSClient(ABC):
 
         if check_in < date.today():
             raise PMSValidationError("Check-in date cannot be in the past")
+
+    def _get_cache_key(
+        self,
+        check_in: date,
+        check_out: date,
+        adults: int,
+        children: int,
+        babies: int,
+        rate_code: str,
+        room_type_filter: str,
+        board_filter: str
+    ) -> Tuple:
+        """
+        Generate cache key for availability request.
+
+        Args:
+            All parameters from get_availability()
+
+        Returns:
+            Tuple to use as cache key
+        """
+        return (check_in, check_out, adults, children, babies, rate_code, room_type_filter, board_filter)
+
+    def _is_cache_valid(self, cache_timestamp: float) -> bool:
+        """
+        Check if cached data is still valid based on TTL.
+
+        Args:
+            cache_timestamp: Unix timestamp when data was cached
+
+        Returns:
+            True if cache is still valid, False if expired
+        """
+        return (time() - cache_timestamp) < self._cache_ttl_seconds
+
+    def clear_availability_cache(self) -> None:
+        """
+        Clear all cached availability data.
+
+        Useful when you know data has changed or want to force fresh API calls.
+        """
+        self._availability_cache.clear()
 
 
 class PMSClientFactory:

@@ -1,0 +1,492 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.2, pytest-8.4.2, pluggy-1.6.0 -- /home/mushon/hotel_sales_ai_agent/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/mushon/hotel_sales_ai_agent
+collecting ... collected 32 items
+
+src/tests/test_minihotel.py::TestClientCreation::test_create_production_client PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_create_sandbox_client PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_custom_timeout PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_supports_guest_count 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_supports_children_breakdown 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_factory_creation PASSED
+src/tests/test_minihotel.py::TestClientCreation::test_factory_unknown_pms PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_basic_availability 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+-------------------------------- live log call ---------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:137 
+🔍 TEST: Basic Availability (NO MOCKS - Real API Call)
+INFO     src.tests.test_minihotel:test_minihotel.py:138    Client type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:139    Request: 2025-11-13 to 2025-11-15, 2 adults
+INFO     src.tests.test_minihotel:test_minihotel.py:150    Response: The Way Inn, 1 rooms available
+
+✓ Basic availability test passed
+  Hotel: The Way Inn
+  Currency: ILS
+  Available room types: 1
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_with_children 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+-------------------------------- live log call ---------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:171 
+🔍 TEST: Availability with Children (Real API)
+INFO     src.tests.test_minihotel:test_minihotel.py:172    Request: 2 adults, 2 children
+INFO     src.tests.test_minihotel:test_minihotel.py:183    Response: Got availability for 2 adults, 2 children
+
+✓ Availability with children test passed
+  Guests: 2 adults, 2 children
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_with_babies 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Availability with babies test passed
+  Guests: 2 adults, 1 children, 1 babies
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_single_adult 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Single adult availability test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_room_type_filter 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Room type filter test passed
+  Filtered for: JUNC
+  Results: 1 room type(s)
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_min_price 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Minimum price filter test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_board_filter 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Board filter test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_longer_stay 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Longer stay test passed
+  Duration: 7 nights
+PASSED
+src/tests/test_minihotel.py::TestGetAvailability::test_availability_debug_mode 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+[DEBUG] Request to: https://api.minihotel.cloud/gds
+[DEBUG] Request XML:
+<?xml version="1.0" encoding="UTF-8" ?>
+<AvailRaterq xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Authentication username="visitguide" password="visg#!71R" />
+<Hotel id="wayinn" />
+<DateRange from="2025-11-13" to="2025-11-15" />
+<Guests adults="2" child="0" babies="0" />
+<RoomTypes>
+<RoomType id="*ALL*" />
+</RoomTypes>
+<Prices rateCode="WEB">
+<Price boardCode="*ALL*" />
+</Prices>
+</AvailRaterq>
+
+[DEBUG] Status Code: 200
+[DEBUG] Response (first 500 chars):
+<?xml version="1.0" encoding="UTF-8"?>
+<AvailRaters>
+  <Hotel id="wayinn" Name_h="The Way Inn" Name_e="The Way Inn" Currency="ILS" />
+  <DateRange from="2025-11-13" to="2025-11-15" />
+  <Guests adults="2" child="0" babies="0" />
+  <RoomType id="JUNC" Name_h="Chokhmah" Name_e="Chokhmah">
+    <Inventory Allocation="1" maxavail="1" />
+    <price board="BB" boardDesc="Breakfast" value="2160" />
+    <price board="RO" boardDesc="Room only" value="2160" />
+  </RoomType>
+</AvailRaters>
+
+
+✓ Debug mode test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailabilityValidation::test_invalid_dates_checkout_before_checkin 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+-------------------------------- live log call ---------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:326 
+🔍 TEST: Validation - Invalid Date Order
+INFO     src.tests.test_minihotel:test_minihotel.py:327    Testing validation (no API call expected)
+INFO     src.tests.test_minihotel:test_minihotel.py:336    ✓ Correctly raised validation error
+
+✓ Invalid dates validation test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailabilityValidation::test_invalid_dates_same_day 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Same-day validation test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailabilityValidation::test_invalid_dates_past 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Past date validation test passed
+PASSED
+src/tests/test_minihotel.py::TestGetAvailabilityValidation::test_invalid_zero_adults 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Zero adults validation test passed
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_response_structure 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Response structure test passed
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_room_type_availability_structure 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Room type structure test passed
+  Sample: Chokhmah
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_get_available_rooms_method 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Get available rooms method test passed
+  Available rooms: 1
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_min_price_method 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Min price method test passed
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_inventory_data 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Inventory data test passed
+  Has inventory: True
+PASSED
+src/tests/test_minihotel.py::TestAvailabilityResponse::test_price_data 
+-------------------------------- live log setup --------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:32 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:33 CREATING MINIHOTEL CLIENT - NO MOCKS, REAL API CLIENT
+INFO     src.tests.test_minihotel:test_minihotel.py:34 ======================================================================
+INFO     src.tests.test_minihotel:test_minihotel.py:35 Username: visitguide
+INFO     src.tests.test_minihotel:test_minihotel.py:36 Hotel ID: wayinn
+INFO     src.tests.test_minihotel:test_minihotel.py:37 Use Sandbox: False
+INFO     src.tests.test_minihotel:test_minihotel.py:38 Client Type: MiniHotelClient
+INFO     src.tests.test_minihotel:test_minihotel.py:47 Client created successfully: <class 'src.pms.minihotel.MiniHotelClient'>
+INFO     src.tests.test_minihotel:test_minihotel.py:48 Client endpoint: production
+INFO     src.tests.test_minihotel:test_minihotel.py:49 ======================================================================
+
+✓ Price data test passed
+  Has prices: True
+PASSED
+src/tests/test_minihotel.py::TestErrorHandling::test_invalid_credentials 
+-------------------------------- live log call ---------------------------------
+INFO     src.tests.test_minihotel:test_minihotel.py:523 
+🔍 TEST: Invalid Credentials Error Handling (Real API)
+INFO     src.tests.test_minihotel:test_minihotel.py:524    Creating client with invalid credentials
+INFO     src.tests.test_minihotel:test_minihotel.py:535    Attempting API call - expecting error
+INFO     src.tests.test_minihotel:test_minihotel.py:545    ✓ Correctly raised authentication/connection error
+
+✓ Invalid credentials test passed
+PASSED
+src/tests/test_minihotel.py::TestBookingLinkGeneration::test_new_format_with_url_code 
+======================================================================
+TEST: New Format Booking Link (with url_code)
+======================================================================
+Client Configuration:
+  - hotel_id: test_hotel
+  - url_code: wayinn123
+  - use_sandbox: False
+
+Booking Parameters:
+  - Check-in: 2025-11-13
+  - Check-out: 2025-11-15
+  - Adults: 2
+  - Children: 0
+  - Room Type: PREMIUM-KING
+
+Generated Link:
+  https://frame1.hotelpms.io/BookingFrameClient/hotel/wayinn123/book/rooms?currency=ILS&language=en-US&rp=d2Vi&from=20251113&to=20251115&roomType=PREMIUM-KING
+
+Link Components:
+  ✓ Base URL: frame1.hotelpms.io
+  ✓ URL Code: wayinn123
+  ✓ Date Format: 20251113 to 20251115 (YYYYMMDD)
+  ✓ Currency: ILS
+  ✓ Language: en-US
+  ✓ Room Type: PREMIUM-KING
+  ✓ Rate Parameter: rp=d2Vi (base64 'web')
+
+✅ TEST PASSED - New format booking link
+======================================================================
+PASSED
+src/tests/test_minihotel.py::TestBookingLinkGeneration::test_new_format_with_hebrew_language 
+======================================================================
+TEST: Hebrew Language Booking Link
+======================================================================
+Booking Parameters:
+  - Language: he (Hebrew)
+  - Adults: 2
+
+Generated Link:
+  https://frame1.hotelpms.io/BookingFrameClient/hotel/wayinn123/book/rooms?currency=ILS&language=he-IL&rp=d2Vi&from=20251113&to=20251115
+
+Language Check:
+  ✓ Hebrew detected, using language=he-IL
+
+✅ TEST PASSED - Hebrew language
+======================================================================
+PASSED
+src/tests/test_minihotel.py::TestBookingLinkGeneration::test_old_format_without_url_code 
+======================================================================
+TEST: Old Format Booking Link (without url_code)
+======================================================================
+Client Configuration:
+  - hotel_id: wayinn
+  - url_code: None (None - using fallback format)
+
+Booking Parameters:
+  - Check-in: 2025-11-13
+  - Check-out: 2025-11-15
+  - Adults: 2
+  - Children: 1
+  - Babies: 1
+  - Room Type: DELUXE
+
+Generated Link:
+  https://api.minihotel.cloud/gds/?hotel=wayinn&checkin=2025-11-13&checkout=2025-11-15&adults=2&children=1&infants=1&room=DELUXE
+
+Link Components:
+  ✓ Base URL: api.minihotel.cloud/gds
+  ✓ Hotel ID: wayinn
+  ✓ Date Format: 2025-11-13 to 2025-11-15 (YYYY-MM-DD)
+  ✓ Adults: 2
+  ✓ Children: 1
+  ✓ Infants: 1
+  ✓ Room Type: DELUXE
+
+✅ TEST PASSED - Old format booking link
+======================================================================
+PASSED
+src/tests/test_minihotel.py::TestBookingLinkGeneration::test_booking_link_validation 
+✓ Booking link validation test passed
+PASSED
+src/tests/test_minihotel.py::TestBookingLinkGeneration::test_booking_link_with_custom_currency 
+======================================================================
+TEST: Custom Currency Booking Link
+======================================================================
+Booking Parameters:
+  - Currency: USD (custom, not default ILS)
+  - Adults: 2
+
+Generated Link:
+  https://frame1.hotelpms.io/BookingFrameClient/hotel/wayinn123/book/rooms?currency=USD&language=en-US&rp=d2Vi&from=20251113&to=20251115
+
+Currency Check:
+  ✓ Custom currency USD applied
+
+✅ TEST PASSED - Custom currency
+======================================================================
+PASSED
+
+============================== 32 passed in 6.10s ==============================

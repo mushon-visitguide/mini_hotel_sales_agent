@@ -35,6 +35,13 @@ class RoomTypeAvailability:
     room_type_name_local: Optional[str] = None
     inventory: Optional[Inventory] = None
     prices: Optional[List[BoardPrice]] = None
+    # Room specifications (optional - depends on PMS capabilities)
+    max_adults: Optional[int] = None
+    max_children: Optional[int] = None
+    max_babies: Optional[int] = None
+    bed_configuration: Optional[str] = None  # e.g., "1 King", "2 Queens"
+    size_sqm: Optional[float] = None
+    features: Optional[List[str]] = None  # e.g., ["Ocean View", "Balcony", "Connecting"]
 
     def __str__(self) -> str:
         avail_str = f"{self.inventory.allocation} available" if self.inventory else "unknown"
@@ -45,6 +52,17 @@ class RoomTypeAvailability:
         if not self.prices:
             return None
         return min(p.price for p in self.prices)
+
+    def get_max_occupancy(self) -> Optional[int]:
+        """Get total maximum occupancy (adults + children + babies)"""
+        if self.max_adults is None:
+            return None
+        total = self.max_adults
+        if self.max_children:
+            total += self.max_children
+        if self.max_babies:
+            total += self.max_babies
+        return total
 
 
 @dataclass

@@ -193,3 +193,107 @@ I've noted your hold request - 2 connecting Oceanview rooms July 15-20, $1,350 t
 **Guest:** perfect thanks so much!
 
 **Agent:** You're welcome! 😊
+
+---
+
+## Chat Conversation 5: Couple - Christmas Holiday Budget Search
+
+**Guest:** do we have availability during christmas for 2 nights? looking for something under $150 per night
+
+**Agent:** Let me check Christmas availability for you! I have rooms available Dec 24-26 (2 nights) for 2 adults.
+
+**Guest:** yes exactly
+
+**Agent:** Great news! I have 3 options under $150/night:
+- Double Room: $135/night ($270 total)
+- Garden View: $145/night ($290 total)
+- Standard Suite: $149/night ($298 total)
+
+All include breakfast. Which interests you?
+
+**Guest:** the garden view sounds nice
+
+**Agent:** Perfect choice! Garden View room, Dec 24-26, $290 total + tax. Can I get your name?
+
+**Guest:** Sarah Williams
+
+**Agent:** And your phone/email?
+
+**Guest:** 555-4892 sarah.w@email.com
+
+**Agent:** Wonderful! Here's your booking link:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-12-24&checkout=2024-12-26&adults=2&room=GARDEN-VIEW&rate=WEB
+
+Garden View room for Christmas, $290 total. Happy holidays! 🎄
+
+**Guest:** thanks!
+
+---
+
+## Chat Conversation 6: Couple - Last Minute Tomorrow
+
+**Guest:** whats available tomorrow night for a couple?
+
+**Agent:** I have rooms available tomorrow (Oct 15) for 2 adults! How many nights?
+
+**Guest:** just 1 night
+
+**Agent:** Perfect! I have:
+- Standard Double: $89 with breakfast
+- Deluxe King: $129 with breakfast + ocean view
+- Suite: $179 with breakfast + balcony
+
+**Guest:** deluxe king sounds good
+
+**Agent:** Great! Deluxe King tomorrow night $129 + tax. Your name?
+
+**Guest:** Mark Chen
+
+**Agent:** Phone and email?
+
+**Guest:** 555-7721 m.chen@email.com
+
+**Agent:** Here's your booking link:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-10-15&checkout=2024-10-16&adults=2&room=DELUXE-KING&rate=WEB
+
+Deluxe King for tomorrow, $129. Check-in after 3pm. See you tomorrow!
+
+**Guest:** perfect thanks
+
+---
+
+## Chat Conversation 7: Family - Next Friday Weekend
+
+**Guest:** availability next friday for the weekend - 2 adults and 2 kids ages 5 and 8
+
+**Agent:** Next Friday would be Oct 18, checking out Sunday Oct 20 (2 nights). Let me see what family rooms we have!
+
+**Guest:** yes that works
+
+**Agent:** Great! I have 2 family-friendly options:
+- Family Suite (sleeps 4): $159/night = $318 total, includes breakfast
+- Two-Bedroom Apartment (sleeps 6): $189/night = $378 total, full kitchen
+
+Both have plenty of space for the kids. Which do you prefer?
+
+**Guest:** the apartment with kitchen would be nice
+
+**Agent:** Smart choice for families! Two-Bedroom Apartment, Oct 18-20, $378 total + tax. Name for reservation?
+
+**Guest:** Jennifer Martinez
+
+**Agent:** Phone and email?
+
+**Guest:** 555-9043 jmartinez@email.com
+
+**Agent:** Perfect! Here's your booking link:
+
+🔗 https://booking.wayinn.com/book?checkin=2024-10-18&checkout=2024-10-20&adults=2&children=2&room=2BR-APARTMENT&rate=WEB
+
+Two-Bedroom Apartment next Friday-Sunday, $378. The kids will love it! 👨‍👩‍👧‍👦
+
+**Guest:** awesome thank you!
+
+**Agent:** You're welcome! Have a great weekend!

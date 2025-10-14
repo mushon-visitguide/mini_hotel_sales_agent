@@ -48,6 +48,7 @@ class MiniHotelClient(PMSClient):
         use_sandbox: bool = False,
         timeout: int = 30,
         url_code: Optional[str] = None,
+        cache_ttl_seconds: int = 300,
     ):
         """
         Initialize MiniHotel client.
@@ -59,11 +60,14 @@ class MiniHotelClient(PMSClient):
             use_sandbox: If True, use sandbox endpoint (default: False)
             timeout: Request timeout in seconds (default: 30)
             url_code: Optional URL code for new booking frame format
+            cache_ttl_seconds: Cache TTL for availability (default: 300 = 5 minutes)
         """
-        super().__init__(username, password, hotel_id)
+        super().__init__(username, password, hotel_id, cache_ttl_seconds)
         self.use_sandbox = use_sandbox
         self.timeout = timeout
         self.url_code = url_code
+        # Cache for room type specifications (derived from getRooms)
+        self._room_specs_cache = {}
 
     @property
     def supports_guest_count(self) -> bool:
@@ -278,6 +282,62 @@ class MiniHotelClient(PMSClient):
         except Exception as e:
             raise PMSDataError(f"Error parsing rooms: {e}")
 
+    def build_room_specs_cache(self, debug: bool = False) -> None:
+        """
+        Build cache of room type specifications by analyzing physical rooms.
+
+        This derives max occupancy and features per room type from getRooms() data.
+        Should be called once during initialization or periodically to refresh cache.
+
+        Args:
+            debug: If True, print debug information
+        """
+        if not self.use_sandbox:
+            # In production, we can't call getRooms, so cache remains empty
+            # Specs will not be available unless manually populated
+            return
+
+        rooms = self.get_rooms(debug=debug)
+
+        # Group rooms by type
+        from collections import defaultdict
+        rooms_by_type = defaultdict(list)
+        for room in rooms:
+            rooms_by_type[room.room_type].append(room)
+
+        # Derive specs for each room type
+        for room_type_code, type_rooms in rooms_by_type.items():
+            max_adults = 0
+            max_children = 0
+            max_babies = 0
+            all_features = set()
+
+            for room in type_rooms:
+                # Get max occupancy from this room
+                if room.occupancy_limits:
+                    for occ in room.occupancy_limits:
+                        if occ.guest_type == "A":  # Adult
+                            max_adults = max(max_adults, occ.max_count)
+                        elif occ.guest_type == "C":  # Child
+                            max_children = max(max_children, occ.max_count)
+                        elif occ.guest_type == "B":  # Baby
+                            max_babies = max(max_babies, occ.max_count)
+
+                # Collect features/attributes
+                if room.attributes:
+                    for attr in room.attributes:
+                        all_features.add(attr.description)
+
+            # Store in cache
+            self._room_specs_cache[room_type_code] = {
+                "max_adults": max_adults if max_adults > 0 else None,
+                "max_children": max_children if max_children > 0 else None,
+                "max_babies": max_babies if max_babies > 0 else None,
+                "features": sorted(list(all_features)) if all_features else None,
+                "bed_configuration": None,  # Could be inferred from room type name
+                "size_sqm": None,  # Not available in MiniHotel API
+            }
+
     def get_availability(
         self,
         check_in: date,
@@ -289,9 +349,12 @@ class MiniHotelClient(PMSClient):
         room_type_filter: str = "*ALL*",
         board_filter: str = "*ALL*",
         debug: bool = False,
+        use_cache: bool = True,
     ) -> AvailabilityResponse:
         """
         Get availability and pricing from MiniHotel (Immediate ARI).
+
+        Uses automatic caching to reduce API calls for repeated queries.
 
         Args:
             check_in: Check-in date
@@ -303,6 +366,7 @@ class MiniHotelClient(PMSClient):
             room_type_filter: "*ALL*", "*MIN*", or specific room type
             board_filter: "*ALL*", "*MIN*", or specific board code
             debug: If True, print debug information
+            use_cache: If True, use cache (default: True). Set to False to force fresh API call.
 
         Returns:
             AvailabilityResponse object
@@ -318,6 +382,27 @@ class MiniHotelClient(PMSClient):
         # Validate guest counts
         if adults < 1:
             raise PMSValidationError("At least 1 adult is required")
+
+        # Check cache first
+        if use_cache:
+            cache_key = self._get_cache_key(
+                check_in, check_out, adults, children, babies,
+                rate_code, room_type_filter, board_filter
+            )
+
+            if cache_key in self._availability_cache:
+                cache_timestamp, cached_response = self._availability_cache[cache_key]
+                if self._is_cache_valid(cache_timestamp):
+                    if debug:
+                        print(f"[DEBUG] Cache hit for {check_in} to {check_out}")
+                    return cached_response
+                else:
+                    if debug:
+                        print(f"[DEBUG] Cache expired for {check_in} to {check_out}")
+
+        # Cache miss or expired - make API call
+        if debug and use_cache:
+            print(f"[DEBUG] Cache miss for {check_in} to {check_out}, making API call")
 
         # Format dates as YYYY-MM-DD
         check_in_str = check_in.strftime("%Y-%m-%d")
@@ -388,6 +473,9 @@ class MiniHotelClient(PMSClient):
                     )
 
                 if rt_code:  # Only add if room type code exists
+                    # Get cached specs for this room type
+                    specs = self._room_specs_cache.get(rt_code, {})
+
                     room_types.append(
                         RoomTypeAvailability(
                             room_type_code=rt_code,
@@ -395,10 +483,17 @@ class MiniHotelClient(PMSClient):
                             room_type_name_local=rt_name_local,
                             inventory=inventory,
                             prices=prices if prices else None,
+                            # Merge cached specifications
+                            max_adults=specs.get("max_adults"),
+                            max_children=specs.get("max_children"),
+                            max_babies=specs.get("max_babies"),
+                            bed_configuration=specs.get("bed_configuration"),
+                            size_sqm=specs.get("size_sqm"),
+                            features=specs.get("features"),
                         )
                     )
 
-            return AvailabilityResponse(
+            response = AvailabilityResponse(
                 hotel_id=hotel_id,
                 hotel_name=hotel_name,
                 currency=currency,
@@ -409,6 +504,19 @@ class MiniHotelClient(PMSClient):
                 babies=babies,
                 room_types=room_types if room_types else None,
             )
+
+            # Store in cache
+            if use_cache:
+                from time import time
+                cache_key = self._get_cache_key(
+                    check_in, check_out, adults, children, babies,
+                    rate_code, room_type_filter, board_filter
+                )
+                self._availability_cache[cache_key] = (time(), response)
+                if debug:
+                    print(f"[DEBUG] Cached response for {check_in} to {check_out}")
+
+            return response
 
         except ET.ParseError as e:
             raise PMSDataError(f"Invalid XML response: {e}")
