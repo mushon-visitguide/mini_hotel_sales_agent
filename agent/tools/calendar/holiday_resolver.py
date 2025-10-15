@@ -138,28 +138,32 @@ def get_christian_holiday_dates(holiday_name: str, year: int) -> Optional[Dict[s
     return None
 
 
-def get_jewish_holiday_dates(holiday_name: str, year: int, current_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def get_jewish_holiday_dates(holiday_name: str, year: int, current_date: Optional[str] = None, allow_past: bool = False) -> Optional[Dict[str, Any]]:
     """
     Get Jewish holiday dates from Hebcal API.
 
+    Queries both current year and next year, then returns the first occurrence
+    that is on or after current_date (unless allow_past=True).
+
     Args:
         holiday_name: Name of the Jewish holiday
-        year: Year to get holiday dates for
-        current_date: Current date in YYYY-MM-DD format (defaults to today). Only returns holidays starting on or after this date.
+        year: Year to search in
+        current_date: Current date in YYYY-MM-DD format (used for filtering unless allow_past=True)
+        allow_past: If True, return holiday from requested year even if it passed
 
     Returns:
         Dictionary with holiday information or None if not found
     """
-    # Use current_date as start parameter to only get future holidays
     if current_date is None:
         from datetime import date
         current_date = date.today().isoformat()
 
-    # Query from current date through end of next year to catch holidays that span year boundaries
-    end_date = f"{year + 1}-12-31"
+    # Query both this year and next year to catch holidays that may have passed
+    start_date = f"{year}-01-01"
+    end_date = f"{year + 1}-12-31" if not allow_past else f"{year}-12-31"
 
     # Hebcal API URL with start/end date range and all holiday types
-    hebcal_url = f"https://www.hebcal.com/hebcal?v=1&cfg=json&start={current_date}&end={end_date}&maj=on&min=on&i=on&mod=on"
+    hebcal_url = f"https://www.hebcal.com/hebcal?v=1&cfg=json&start={start_date}&end={end_date}&maj=on&min=on&i=on&mod=on"
 
     try:
         response = requests.get(hebcal_url, timeout=10)
@@ -194,13 +198,14 @@ def get_jewish_holiday_dates(holiday_name: str, year: int, current_date: Optiona
             "Tu B'Av": ["Tu B'Av"],
         }
 
-        # Holiday durations (in days)
+        # Holiday durations (in nights for hotel bookings)
+        # Note: For Passover, we start from Erev Pesach and add 8 days to get 8 nights
         holiday_durations = {
             "Rosh Hashanah": 2,
             "Yom Kippur": 1,
             "Sukkot": 7,
-            "Passover": 8,
-            "Pesach": 8,
+            "Passover": 8,  # Erev Pesach + 7 days of Pesach = 8 nights (Apr 1-9)
+            "Pesach": 8,     # Erev Pesach + 7 days of Pesach = 8 nights (Apr 1-9)
             "Hanukkah": 8,
             "Chanukah": 8,
             "Purim": 1,
@@ -226,8 +231,15 @@ def get_jewish_holiday_dates(holiday_name: str, year: int, current_date: Optiona
         # Special tracking for Hanukkah start date
         hanukkah_start_date = None
 
+        # Special tracking for Passover - we want Erev Pesach as the start
+        passover_erev_date = None
+
         for item in items:
             title = item.get('title', '')
+
+            # For Passover/Pesach, capture Erev Pesach separately
+            if holiday_name in ["Passover", "Pesach"] and "Erev Pesach" in title:
+                passover_erev_date = item.get('date', '')
 
             # Skip eve/erev entries and variations that aren't the main holiday
             if any(skip in title for skip in ['Erev', 'Sheni', 'Shushan', 'Meshulash', 'LaBehemot']):
@@ -246,24 +258,33 @@ def get_jewish_holiday_dates(holiday_name: str, year: int, current_date: Optiona
                         # Special handling for Hanukkah - we ONLY want "1 Candle" as the start
                         if holiday_name in ["Hanukkah", "Chanukah"] and "Chanukah" in title:
                             if "1 Candle" in title:
-                                hanukkah_start_date = date_str
+                                holiday_dates.append(date_str)
                         else:
                             # For other holidays, skip days after the first
                             if not any(num in title for num in [' II', ' III', ' IV', ' V', ' VI', ' VII', ' VIII']):
                                 holiday_dates.append(date_str)
 
-        # For Hanukkah, use the specifically found start date
-        if holiday_name in ["Hanukkah", "Chanukah"] and hanukkah_start_date:
-            holiday_dates = [hanukkah_start_date]
-
         if holiday_dates:
+            # Filter out dates that have passed (unless allow_past=True)
+            if not allow_past:
+                holiday_dates = [d for d in holiday_dates if d >= current_date]
+
+            if not holiday_dates:
+                return None
+
             # Get first date for holiday period
             holiday_dates.sort()
             start_date = holiday_dates[0]
+
+            # Special handling for Passover - use Erev Pesach as start if available
+            if holiday_name in ["Passover", "Pesach"] and passover_erev_date:
+                # Use Erev Pesach as start date for hotel bookings
+                start_date = passover_erev_date
+
             duration = holiday_durations.get(holiday_name, 1)
 
             start = datetime.strptime(start_date, '%Y-%m-%d')
-            end = start + timedelta(days=duration - 1)
+            end = start + timedelta(days=duration)
 
             return {
                 'holiday_name': holiday_name,
@@ -296,22 +317,29 @@ class HolidayResolver:
         self,
         holiday_name: str,
         year: Optional[int] = None,
-        current_date: Optional[str] = None
-    ) -> Optional[HolidayResolution]:
+        current_date: Optional[str] = None,
+        return_string: bool = False
+    ) -> Optional[str | HolidayResolution]:
         """
         Resolve holiday name to date range.
+
+        If year is not specified, automatically returns the next upcoming occurrence.
+        If year IS specified, returns that year's holiday even if it passed.
 
         Handles "Eve" requests (e.g., "Christmas Eve", "Erev Sukkot", "ערב פסח")
         by finding the main holiday and returning the day before.
 
         Args:
             holiday_name: Name of the holiday (e.g., "Hanukkah", "Christmas", "Passover", "Sukkot Eve")
-            year: Year to resolve for (defaults to current year)
-            current_date: Current date in YYYY-MM-DD format (defaults to today). Only returns holidays on or after this date.
+            year: Year to get holiday for (if specified, returns that year even if past)
+            current_date: Current date in YYYY-MM-DD format (defaults to today)
+            return_string: If True, return simple string "Holiday is from YYYY-MM-DD to YYYY-MM-DD", otherwise return HolidayResolution object
 
         Returns:
-            HolidayResolution with dates or None if holiday not found
+            String description or HolidayResolution with dates or None if holiday not found
         """
+        year_was_specified = year is not None
+
         if year is None:
             year = datetime.now().year
 
@@ -322,8 +350,11 @@ class HolidayResolver:
         # First, check if this exact holiday name exists (e.g., "Christmas Eve", "New Year's Eve")
         # Try Christian holidays first for exact match
         christian_result = get_christian_holiday_dates(holiday_name, year)
-        if christian_result:
-            return HolidayResolution(**christian_result)
+        if christian_result and christian_result['start_date'] >= current_date:
+            resolution = HolidayResolution(**christian_result)
+            if return_string:
+                return f"{resolution.holiday_name} is from {resolution.start_date} to {resolution.end_date}"
+            return resolution
 
         # Check if this is an "Eve" request that needs to be calculated
         is_eve_request = False
@@ -345,13 +376,15 @@ class HolidayResolver:
                 break
 
         # Try Jewish holidays (for main holiday)
-        jewish_result = get_jewish_holiday_dates(main_holiday_name, year, current_date)
+        # If year was explicitly provided, return that year even if passed
+        # Otherwise, filter out past holidays
+        jewish_result = get_jewish_holiday_dates(main_holiday_name, year, current_date, allow_past=year_was_specified)
         if jewish_result:
             # If this is an Eve request, return the day before
             if is_eve_request:
                 start_date = datetime.strptime(jewish_result['start_date'], '%Y-%m-%d')
                 eve_date = start_date - timedelta(days=1)
-                return HolidayResolution(
+                resolution = HolidayResolution(
                     holiday_name=f"{main_holiday_name} Eve",
                     start_date=eve_date.strftime('%Y-%m-%d'),
                     end_date=eve_date.strftime('%Y-%m-%d'),
@@ -359,7 +392,13 @@ class HolidayResolver:
                     year=year,
                     holiday_type='jewish'
                 )
-            return HolidayResolution(**jewish_result)
+                if return_string:
+                    return f"{resolution.holiday_name} is from {resolution.start_date} to {resolution.end_date}"
+                return resolution
+            resolution = HolidayResolution(**jewish_result)
+            if return_string:
+                return f"{resolution.holiday_name} is from {resolution.start_date} to {resolution.end_date}"
+            return resolution
 
         # Try Christian holidays (for main holiday)
         christian_result = get_christian_holiday_dates(main_holiday_name, year)
@@ -368,7 +407,7 @@ class HolidayResolver:
             if is_eve_request:
                 start_date = datetime.strptime(christian_result['start_date'], '%Y-%m-%d')
                 eve_date = start_date - timedelta(days=1)
-                return HolidayResolution(
+                resolution = HolidayResolution(
                     holiday_name=f"{main_holiday_name} Eve",
                     start_date=eve_date.strftime('%Y-%m-%d'),
                     end_date=eve_date.strftime('%Y-%m-%d'),
@@ -376,11 +415,84 @@ class HolidayResolver:
                     year=year,
                     holiday_type=christian_result['holiday_type']
                 )
-            return HolidayResolution(**christian_result)
+                if return_string:
+                    return f"{resolution.holiday_name} is from {resolution.start_date} to {resolution.end_date}"
+                return resolution
+            resolution = HolidayResolution(**christian_result)
+            if return_string:
+                return f"{resolution.holiday_name} is from {resolution.start_date} to {resolution.end_date}"
+            return resolution
 
         # Could add Muslim holidays here in the future
 
         return None
+
+
+# Cache for holidays (in-memory with TTL)
+_holidays_cache = {
+    "data": None,
+    "timestamp": None,
+    "ttl_hours": 24
+}
+
+
+def get_all_holidays_cached(current_year: Optional[int] = None) -> str:
+    """
+    Get all Jewish and Christian holidays for current and next year in condensed format.
+
+    Uses in-memory cache with 24-hour TTL to minimize API calls to Hebcal.
+
+    This is meant to be injected into LLM prompts so the date resolver can understand
+    holiday references without needing separate API calls.
+
+    Args:
+        current_year: Year to start from (defaults to current year)
+
+    Returns:
+        Condensed string with all holidays
+    """
+    if current_year is None:
+        current_year = datetime.now().year
+
+    # Check if cache is still valid
+    if _holidays_cache["data"] is not None and _holidays_cache["timestamp"] is not None:
+        cache_age_hours = (datetime.now() - _holidays_cache["timestamp"]).total_seconds() / 3600
+        if cache_age_hours < _holidays_cache["ttl_hours"]:
+            # Cache is still valid, return cached data
+            return _holidays_cache["data"]
+
+    # Cache expired or empty, fetch fresh data
+    holidays = []
+
+    # Get holidays for current year and next year
+    for year in [current_year, current_year + 1]:
+        # Christian holidays (fast, calculated)
+        christian_names = [
+            "Christmas", "Christmas Eve", "New Year's Day", "New Year's Eve",
+            "Easter", "Good Friday", "Palm Sunday", "Thanksgiving"
+        ]
+        for name in christian_names:
+            result = get_christian_holiday_dates(name, year)
+            if result:
+                holidays.append(f"{result['holiday_name']} {year}: {result['start_date']} to {result['end_date']}")
+
+        # Jewish holidays (slow, API call to Hebcal)
+        jewish_names = [
+            "Rosh Hashanah", "Yom Kippur", "Sukkot", "Passover", "Hanukkah",
+            "Purim", "Shavuot", "Tu BiShvat", "Lag BaOmer"
+        ]
+        for name in jewish_names:
+            result = get_jewish_holiday_dates(name, year, allow_past=True)
+            if result:
+                holidays.append(f"{result['holiday_name']} {year}: {result['start_date']} to {result['end_date']}")
+
+    result = "\n".join(holidays)
+
+    # Update cache
+    _holidays_cache["data"] = result
+    _holidays_cache["timestamp"] = datetime.now()
+
+    return result
 
 
 # Singleton instance

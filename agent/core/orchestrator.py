@@ -114,7 +114,7 @@ class Orchestrator:
 
         # Step 1: Plan tool execution using LLM
         try:
-            planning_result = self.tool_planner.plan(message, debug=debug)
+            planning_result = await self.tool_planner.plan(message, debug=debug)
         except Exception as e:
             logger.error(f"Tool planning failed: {e}")
             raise RuntimeError(f"Failed to plan tool execution: {e}")

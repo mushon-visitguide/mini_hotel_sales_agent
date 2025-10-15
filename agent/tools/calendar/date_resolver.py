@@ -10,6 +10,7 @@ from datetime import datetime, date
 from typing import Optional
 from pydantic import BaseModel, Field
 from agent.llm.client import LLMClient
+from agent.tools.calendar.holiday_resolver import get_holiday_resolver, get_all_holidays_cached
 import os
 
 
@@ -20,6 +21,14 @@ class DateResolution(BaseModel):
     nights: int = Field(description="Number of nights")
     days: int = Field(description="Number of days (equals nights + 1)")
     reasoning: str = Field(description="Brief explanation of how the dates were resolved")
+
+    def get_check_in_date(self) -> date:
+        """Convert check_in string to date object"""
+        return datetime.strptime(self.check_in, "%Y-%m-%d").date()
+
+    def get_check_out_date(self) -> date:
+        """Convert check_out string to date object"""
+        return datetime.strptime(self.check_out, "%Y-%m-%d").date()
 
 
 class DateResolver:
@@ -72,12 +81,16 @@ class DateResolver:
         current_dt = datetime.fromisoformat(current_date)
         day_name = current_dt.strftime("%A")
 
-        # Build prompt
+        # Get ALL holidays upfront (cached, fast)
+        all_holidays = get_all_holidays_cached(current_year=current_dt.year)
+
+        # Build prompt with all holidays included
         system_prompt = self._build_system_prompt(
             current_date=current_date,
             day_name=day_name,
             timezone=timezone,
-            default_nights=default_nights
+            default_nights=default_nights,
+            all_holidays=all_holidays
         )
 
         user_message = f"Resolve this date hint: '{date_hint}'"
@@ -107,14 +120,21 @@ class DateResolver:
         current_date: str,
         day_name: str,
         timezone: str,
-        default_nights: int
+        default_nights: int,
+        all_holidays: str
     ) -> str:
-        """Build system prompt for date resolution"""
+        """Build system prompt for date resolution with all holidays injected"""
         return f"""You are a date resolver for a hotel booking system.
 
 ## CURRENT CONTEXT
 **Today's exact date: {current_date} ({day_name})**
 Timezone: {timezone}
+
+## ALL UPCOMING HOLIDAYS
+Here are all Jewish and Christian holidays for this year and next year.
+Use these EXACT dates when the user mentions any holiday:
+
+{all_holidays}
 
 ## YOUR TASK
 Parse natural language date hints and return structured dates with check-in, check-out, nights, and days.
@@ -146,10 +166,40 @@ Parse natural language date hints and return structured dates with check-in, che
    - ALWAYS output dates as YYYY-MM-DD
    - Check-out must be AFTER check-in
 
+## HOLIDAY NAMES
+
+If the date hint mentions a holiday, you must use these EXACT names in your reasoning:
+
+**Jewish Holidays (use these exact names):**
+- Hanukkah (or Chanukah)
+- Passover (or Pesach)
+- Rosh Hashanah
+- Yom Kippur
+- Sukkot
+- Purim
+- Shavuot
+- Simchat Torah
+- Lag BaOmer
+- Tisha B'Av
+- Tu B'Shvat
+- Tu B'Av
+- Yom HaAtzmaut
+- Yom HaZikaron
+- Yom HaShoah
+- Yom Yerushalayim
+
+**Christian Holidays:**
+- Christmas
+- Easter
+- Good Friday
+- Thanksgiving
+- New Year
+
 ## REMEMBER
 - Today is **{current_date}** ({day_name})
 - NEVER return past dates - advance to next year if needed
 - Set duration based on what the user actually requested
+- Use exact holiday names from the list above
 """
 
 

@@ -42,10 +42,10 @@ class LLMClient:
         temperature: float = 0.0
     ) -> T:
         """
-        Call OpenAI with Structured Outputs for 100% schema adherence.
+        Call OpenAI with JSON mode for structured outputs.
 
-        This uses the beta.chat.completions.parse API which guarantees
-        the response will match the Pydantic schema exactly.
+        Uses response_format with json_schema (not strict mode) to allow
+        free-form dictionaries in the response.
 
         Args:
             system_prompt: System message defining behavior
@@ -60,22 +60,34 @@ class LLMClient:
             OpenAI API exceptions if request fails
         """
         try:
-            response = self.client.beta.chat.completions.parse(
+            # Get JSON schema from Pydantic model
+            json_schema = response_schema.model_json_schema()
+
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
                 ],
-                response_format=response_schema,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": response_schema.__name__,
+                        "schema": json_schema,
+                        "strict": False  # Disable strict mode to allow additionalProperties
+                    }
+                },
                 temperature=temperature
             )
 
-            # Extract parsed response (guaranteed to match schema)
-            parsed = response.choices[0].message.parsed
+            # Parse JSON response into Pydantic model
+            content = response.choices[0].message.content
+            if not content:
+                raise ValueError("Empty response from model")
 
-            # Handle refusals (safety filtering)
-            if response.choices[0].message.refusal:
-                raise ValueError(f"Model refused: {response.choices[0].message.refusal}")
+            import json
+            parsed_json = json.loads(content)
+            parsed = response_schema.model_validate(parsed_json)
 
             return parsed
 

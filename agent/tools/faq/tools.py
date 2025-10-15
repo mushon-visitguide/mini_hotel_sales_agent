@@ -7,7 +7,7 @@ from src.faq.faq_client import FAQClient
     name="faq.get_rooms_and_pricing",
     description="Get comprehensive room types and pricing information from hotel FAQ"
 )
-async def get_rooms_and_pricing() -> dict:
+async def get_rooms_and_pricing() -> str:
     """
     Get detailed room types and pricing information.
 
@@ -19,72 +19,60 @@ async def get_rooms_and_pricing() -> dict:
     - Special offers and discounts
 
     Returns:
-        dict: Room and pricing information
+        str: Natural language formatted room and pricing information
     """
     faq_client = FAQClient()
     info = faq_client.get_rooms_and_pricing_info()
 
-    return {
-        "info": info,
-        "source": "FAQ - Rooms & Pricing"
-    }
+    return f"Room and Pricing Information:\n\n{info}"
 
 
 @registry.tool(
     name="faq.get_policies_and_procedures",
     description="Get hotel policies, check-in/out times, cancellation policies, etc."
 )
-async def get_policies_and_procedures() -> dict:
+async def get_policies_and_procedures() -> str:
     """
     Get hotel policies and procedures information.
 
     Returns:
-        dict: Policies and procedures information
+        str: Natural language formatted policies and procedures information
     """
     faq_client = FAQClient()
     info = faq_client.get_policies_and_procedures_info()
 
-    return {
-        "info": info,
-        "source": "FAQ - Policies & Procedures"
-    }
+    return f"Policies and Procedures:\n\n{info}"
 
 
 @registry.tool(
     name="faq.get_facilities_and_services",
     description="Get information about hotel facilities, services, location, and activities"
 )
-async def get_facilities_and_services() -> dict:
+async def get_facilities_and_services() -> str:
     """
     Get facilities and services information.
 
     Returns:
-        dict: Facilities and services information
+        str: Natural language formatted facilities and services information
     """
     faq_client = FAQClient()
     info = faq_client.get_facilities_and_services_info()
 
-    return {
-        "info": info,
-        "source": "FAQ - Facilities & Services"
-    }
+    return f"Facilities and Services:\n\n{info}"
 
 
 @registry.tool(
     name="faq.get_my_stay_guide",
     description="Get practical information for current guests (WiFi, door codes, troubleshooting, etc.)"
 )
-async def get_my_stay_guide() -> dict:
+async def get_my_stay_guide() -> str:
     """
     Get stay guide information for current guests.
 
     Returns:
-        dict: Stay guide information
+        str: Natural language formatted stay guide information
     """
     faq_client = FAQClient()
     info = faq_client.get_my_stay_guide_info()
 
-    return {
-        "info": info,
-        "source": "FAQ - My Stay Guide"
-    }
+    return f"Stay Guide for Current Guests:\n\n{info}"

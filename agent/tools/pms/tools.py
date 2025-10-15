@@ -186,14 +186,12 @@ async def generate_booking_link(
     # Optional URL parameters
     language: str = "en",
     currency: str = "ILS"
-) -> dict:
+) -> str:
     """
     Generate booking link.
 
-    Returns dict with structure:
-    {
-        "url": str
-    }
+    Returns:
+        str: Natural language message with the booking link
     """
     # Create PMS client
     client = create_pms_client(
@@ -218,4 +216,4 @@ async def generate_booking_link(
         currency=currency
     )
 
-    return {"url": url}
+    return f"Here is your booking link: {url}"

@@ -27,6 +27,7 @@ class TestDateResolverBasicDates:
             check_in="2025-12-25",
             check_out="2025-12-26",
             nights=1,
+            days=2,
             reasoning="Tomorrow from Dec 24 is Dec 25"
         )
 
@@ -52,6 +53,7 @@ class TestDateResolverBasicDates:
             check_in="2025-12-26",
             check_out="2025-12-27",
             nights=1,
+            days=2,
             reasoning="Next weekend from Monday Dec 22 is Friday-Saturday Dec 26-27"
         )
 
@@ -77,6 +79,7 @@ class TestDateResolverBasicDates:
             check_in="2025-12-28",
             check_out="2025-12-29",
             nights=1,
+            days=2,
             reasoning="3 days from Dec 25 is Dec 28"
         )
 
@@ -102,6 +105,7 @@ class TestDateResolverBasicDates:
             check_in="2026-01-01",
             check_out="2026-01-02",
             nights=1,
+            days=2,
             reasoning="First of January 2026"
         )
 
@@ -127,6 +131,7 @@ class TestDateResolverBasicDates:
             check_in="2025-04-18",
             check_out="2025-04-20",
             nights=2,
+            days=3,
             reasoning="This Friday (Apr 18) for 2 nights gives checkout on Apr 20"
         )
 
@@ -157,6 +162,7 @@ class TestDateResolverMultiNight:
             check_in="2025-12-26",
             check_out="2025-12-28",
             nights=2,
+            days=3,
             reasoning="Weekend starting Friday Dec 26 for 2 nights"
         )
 
@@ -183,6 +189,7 @@ class TestDateResolverMultiNight:
             check_in="2026-01-01",
             check_out="2026-01-07",
             nights=6,
+            days=7,
             reasoning="Week-long stay starting Jan 1 (7 days = 6 nights)"
         )
 
@@ -209,6 +216,7 @@ class TestDateResolverMultiNight:
             check_in="2025-12-25",
             check_out="2025-12-28",
             nights=3,
+            days=4,
             reasoning="3 nights starting Dec 25 gives checkout on Dec 28"
         )
 
@@ -234,6 +242,7 @@ class TestDateResolverMultiNight:
             check_in="2025-12-14",
             check_out="2025-12-18",
             nights=4,
+            days=5,
             reasoning="Mid December (Dec 14) for 4 nights gives checkout on Dec 18"
         )
 
@@ -260,6 +269,7 @@ class TestDateResolverMultiNight:
             check_in="2025-12-25",
             check_out="2025-12-27",
             nights=2,
+            days=3,
             reasoning="Tomorrow (Dec 25) using default 2 nights"
         )
 
@@ -290,6 +300,7 @@ class TestDateResolverSpecificDates:
             check_in="2025-12-25",
             check_out="2025-12-26",
             nights=1,
+            days=2,
             reasoning="December 25, 2025"
         )
 
@@ -315,6 +326,7 @@ class TestDateResolverSpecificDates:
             check_in="2025-04-18",
             check_out="2025-04-20",
             nights=2,
+            days=3,
             reasoning="April 18-20 is 2 nights (Good Friday to Easter Sunday)"
         )
 
@@ -340,6 +352,7 @@ class TestDateResolverSpecificDates:
             check_in="2025-04-01",
             check_out="2025-04-07",
             nights=6,
+            days=7,
             reasoning="First week of April (Apr 1-7) is 6 nights"
         )
 
@@ -365,6 +378,7 @@ class TestDateResolverSpecificDates:
             check_in="2025-11-25",
             check_out="2025-11-26",
             nights=1,
+            days=2,
             reasoning="End of November is around Nov 25-30"
         )
 
@@ -392,6 +406,7 @@ class TestDateResolverSpecificDates:
             check_in="2026-01-15",
             check_out="2026-01-16",
             nights=1,
+            days=2,
             reasoning="On the 15th - next occurrence is Jan 15, 2026"
         )
 
@@ -420,6 +435,7 @@ class TestDateResolverEdgeCases:
             check_in="2025-12-26",
             check_out="2025-12-27",
             nights=1,
+            days=2,
             reasoning="Tomorrow from today"
         )
 
@@ -444,6 +460,7 @@ class TestDateResolverEdgeCases:
             check_in="2025-12-25",
             check_out="2025-12-26",
             nights=1,
+            days=2,
             reasoning="Tomorrow in Asia/Jerusalem timezone"
         )
 
@@ -467,6 +484,7 @@ class TestDateResolverEdgeCases:
             check_in="2025-12-25",
             check_out="2025-12-26",
             nights=1,
+            days=2,
             reasoning="Detailed explanation of date resolution"
         )
 
@@ -490,6 +508,7 @@ class TestDateResolverEdgeCases:
             check_in="2025-12-25",
             check_out="2025-12-28",
             nights=3,
+            days=4,
             reasoning="3 nights from Dec 25"
         )
 
@@ -514,6 +533,7 @@ class TestDateResolverEdgeCases:
             check_in="2025-12-25",
             check_out="2025-12-28",
             nights=3,
+            days=4,
             reasoning="3 nights stay"
         )
 

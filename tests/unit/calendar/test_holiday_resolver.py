@@ -175,7 +175,7 @@ class TestJewishHolidayAPI:
         Expected: September 23-24, 2025 (2 days)
         Source: https://www.hebcal.com/holidays/2025
         """
-        result = get_jewish_holiday_dates("Rosh Hashanah", 2025)
+        result = get_jewish_holiday_dates("Rosh Hashanah", 2025, allow_past=True)
         assert result is not None, "Rosh Hashanah should be found"
         assert result['holiday_name'] == "Rosh Hashanah"
         # Rosh Hashanah starts at sunset Sept 22, so calendar date is Sept 23
@@ -188,7 +188,7 @@ class TestJewishHolidayAPI:
         Expected: October 2, 2025 (1 day)
         Source: https://www.hebcal.com/holidays/2025
         """
-        result = get_jewish_holiday_dates("Yom Kippur", 2025)
+        result = get_jewish_holiday_dates("Yom Kippur", 2025, allow_past=True)
         assert result is not None, "Yom Kippur should be found"
         assert result['holiday_name'] == "Yom Kippur"
         assert result['start_date'] == "2025-10-02"

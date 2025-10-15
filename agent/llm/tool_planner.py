@@ -1,20 +1,20 @@
 """LLM-based tool planner using OpenAI Structured Outputs"""
+import json
 import yaml
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from .client import LLMClient
 from .schemas import PlanningResult
 
 
 class ToolPlanner:
     """
-    LLM-based tool planner that outputs execution DAG.
+    LLM-based tool planner for agentic loop.
 
-    This replaces both intent detection and action planning with a single
-    LLM call that:
-    1. Understands what user wants (action description)
-    2. Extracts parameters (slots)
-    3. Plans which tools to call (tools DAG)
+    Plans ONE WAVE at a time based on:
+    1. User message
+    2. Conversation history
+    3. Previous tool results
 
     Uses OpenAI Structured Outputs for 100% reliable JSON schema adherence.
     """
@@ -47,50 +47,76 @@ class ToolPlanner:
         with open(prompt_file, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
 
-    def plan(self, user_message: str, debug: bool = False) -> PlanningResult:
+    async def plan(
+        self,
+        message: str,
+        conversation_history: Optional[List[dict]] = None,
+        previous_results: Optional[dict] = None,
+        debug: bool = False
+    ) -> PlanningResult:
         """
-        Plan tool execution from user message using LLM.
+        Plan NEXT wave of tools based on conversation history and previous results.
 
-        This uses OpenAI Structured Outputs to guarantee 100% schema adherence.
-        The LLM outputs:
-        - action: What user wants to do
-        - slots: Extracted parameters
-        - tools: DAG of tool calls with dependencies
-        - reasoning: Why these tools were chosen
+        AGENTIC LOOP MODE:
+        - First call: Plan first wave based on user message
+        - Subsequent calls: Plan next wave based on previous tool results
+        - Returns status="done" when no more tools needed
 
         Args:
-            user_message: User's input message
-            debug: If True, print debug information
+            message: Original user message
+            conversation_history: List of conversation turns
+            previous_results: Dict mapping tool_id to result from previous waves
+            debug: Enable debug logging
 
         Returns:
-            PlanningResult with action, slots, tools DAG, and reasoning
+            PlanningResult with status, action, slots, tools, and reasoning
 
         Raises:
             RuntimeError: If LLM API call fails
         """
-        # Build complete system prompt
+        if conversation_history is None:
+            conversation_history = [{"role": "user", "content": message}]
+
+        # Add previous results to context if available
+        if previous_results:
+            results_summary = "\n\n## Previous Tool Results:\n"
+            for tool_id, result in previous_results.items():
+                # Convert result to string for LLM consumption
+                if isinstance(result, dict) and "error" not in result:
+                    # Try JSON serialization with fallback for non-serializable objects
+                    try:
+                        result_str = json.dumps(result, indent=2, default=str)
+                    except (TypeError, ValueError):
+                        result_str = str(result)
+                    results_summary += f"\n### {tool_id}:\n{result_str}\n"
+                elif isinstance(result, str):
+                    results_summary += f"\n### {tool_id}:\n{result}\n"
+                else:
+                    # Fallback to str() for any other type
+                    results_summary += f"\n### {tool_id}:\n{str(result)}\n"
+
+            # Add to last message
+            conversation_history[-1]["content"] += results_summary
+
+        # Build system prompt
         system_prompt = self._build_system_prompt()
 
         if debug:
-            print(f"\n[ToolPlanner] Planning for: '{user_message}'")
-            print(f"[ToolPlanner] Using model: {self.llm.model}")
+            print(f"\n[ToolPlanner] Planning next wave")
+            print(f"[ToolPlanner] Previous results: {list(previous_results.keys()) if previous_results else 'None'}")
 
-        # Call LLM with Structured Outputs
+        # LLM call
         try:
             result = self.llm.structured_completion(
                 system_prompt=system_prompt,
-                user_message=user_message,
+                user_message=conversation_history[-1]["content"],
                 response_schema=PlanningResult,
-                temperature=0.0  # Deterministic for planning
+                temperature=0.0
             )
 
             if debug:
                 print(f"[ToolPlanner] Action: {result.action}")
-                print(f"[ToolPlanner] Slots: {result.slots.dict(exclude_none=True)}")
-                print(f"[ToolPlanner] Tools ({len(result.tools)}):")
-                for tool in result.tools:
-                    deps = f"needs={tool.needs}" if tool.needs else "parallel"
-                    print(f"  - {tool.id}: {tool.tool} ({deps})")
+                print(f"[ToolPlanner] Tools ({len(result.tools)}): {[t.id for t in result.tools]}")
                 print(f"[ToolPlanner] Reasoning: {result.reasoning}")
 
             return result

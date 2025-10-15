@@ -208,8 +208,8 @@ class Runtime:
         # Merge tool args with credentials
         args = {**(tool.args or {}), **credentials}
 
-        # Substitute args from previous results if needed
-        args = self._substitute_args(args, previous_results)
+        # Substitute args from previous results if needed, respecting dependencies
+        args = self._substitute_args(args, previous_results, tool.needs)
 
         if debug:
             # Print args (redact credentials)
@@ -237,22 +237,31 @@ class Runtime:
     def _substitute_args(
         self,
         args: Dict[str, Any],
-        previous_results: Dict[str, Any]
+        previous_results: Dict[str, Any],
+        dependency_ids: List[str]
     ) -> Dict[str, Any]:
         """
         Substitute arguments from previous step results.
 
-        If an arg value is None, try to find it in previous results.
+        IMPORTANT: Only looks at results from tools specified in dependency_ids.
+        This ensures that when multiple tools return the same keys (e.g., check_in),
+        each dependent tool gets values from the correct source.
 
         Example:
             args = {"check_in": None, "check_out": None}
-            previous_results = {"resolve_dates": {"check_in": "2024-10-19", ...}}
+            previous_results = {
+                "resolve_hanukkah": {"check_in": "2025-12-14", ...},
+                "resolve_tomorrow": {"check_in": "2025-10-16", ...}
+            }
+            dependency_ids = ["resolve_tomorrow"]
 
-            Returns: {"check_in": "2024-10-19", "check_out": "2024-10-21"}
+            Returns: {"check_in": "2025-10-16", "check_out": "2025-10-17"}
+                     (from resolve_tomorrow only, NOT from resolve_hanukkah)
 
         Args:
             args: Tool arguments
-            previous_results: Results from previous tools
+            previous_results: Results from ALL previous tools
+            dependency_ids: List of tool IDs this tool depends on (from 'needs' field)
 
         Returns:
             Arguments with substitutions
@@ -261,8 +270,8 @@ class Runtime:
 
         for key, value in args.items():
             if value is None:
-                # Try to find this value in previous results
-                found = self._find_in_results(key, previous_results)
+                # Only search in results from dependencies
+                found = self._find_in_results(key, previous_results, dependency_ids)
                 substituted[key] = found if found is not None else value
             else:
                 substituted[key] = value
@@ -272,21 +281,38 @@ class Runtime:
     def _find_in_results(
         self,
         key: str,
-        results: Dict[str, Any]
+        results: Dict[str, Any],
+        dependency_ids: List[str]
     ) -> Any:
         """
-        Find a key in nested results.
+        Find a key in results from specific dependencies.
 
-        Searches through all tool results for a matching key.
+        ONLY searches through results from tools listed in dependency_ids.
+        This prevents cross-contamination when multiple parallel tools return the same keys.
+
+        Example:
+            key = "check_in"
+            results = {
+                "resolve_hanukkah": {"check_in": "2025-12-14"},
+                "resolve_tomorrow": {"check_in": "2025-10-16"},
+                "other_tool": {"check_in": "2025-01-01"}
+            }
+            dependency_ids = ["resolve_tomorrow"]
+
+            Returns: "2025-10-16" (ONLY from resolve_tomorrow, ignores others)
 
         Args:
             key: Key to find
-            results: Tool results dict
+            results: ALL tool results
+            dependency_ids: List of tool IDs to search in (from 'needs' field)
 
         Returns:
-            Value if found, None otherwise
+            Value if found in dependencies, None otherwise
         """
-        for tool_result in results.values():
-            if isinstance(tool_result, dict) and key in tool_result:
-                return tool_result[key]
+        # Only search in specified dependencies
+        for dep_id in dependency_ids:
+            if dep_id in results:
+                dep_result = results[dep_id]
+                if isinstance(dep_result, dict) and key in dep_result:
+                    return dep_result[key]
         return None
