@@ -803,10 +803,10 @@ class TestRoomSpecsCache:
     def test_build_room_specs_cache_sandbox(self):
         """Test building room specs cache from getRooms data"""
         client = MiniHotelClient(
-            username="Test",
-            password="3657488",
-            hotel_id="sandbox",
-            use_sandbox=True,
+            username=USERNAME,
+            password=PASSWORD,
+            hotel_id=HOTEL_ID,
+            use_sandbox=False,
         )
 
         # Build cache (will call getRooms internally)
@@ -861,17 +861,17 @@ class TestEnrichedAvailability:
     def test_availability_includes_room_specs(self):
         """Test that availability response includes room specs when cache is populated"""
         client = MiniHotelClient(
-            username="Test",
-            password="3657488",
-            hotel_id="sandbox",
-            use_sandbox=True,
+            username=USERNAME,
+            password=PASSWORD,
+            hotel_id=HOTEL_ID,
+            use_sandbox=False,
         )
 
         # Build cache first
         try:
             client.build_room_specs_cache()
         except PMSDataError:
-            pytest.skip("Sandbox mode not available")
+            pytest.skip("Production mode not available")
 
         # Get availability
         check_in = date.today() + timedelta(days=30)
