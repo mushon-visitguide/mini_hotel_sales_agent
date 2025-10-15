@@ -1,8 +1,8 @@
 #!/bin/bash
-# Test runner script for MiniHotel API integration
+# Test runner script for Hotel Sales AI Agent
 
-echo "MiniHotel API Test Suite"
-echo "========================"
+echo "Hotel Sales AI Agent - Test Suite"
+echo "=================================="
 echo ""
 
 # Check if virtual environment exists
@@ -20,4 +20,11 @@ echo ""
 # Run tests
 echo "Running tests..."
 echo ""
-venv/bin/python -m pytest src/tests/test_minihotel.py -v "$@"
+
+# Default: run all tests
+if [ -z "$1" ]; then
+    venv/bin/python -m pytest tests/ -v
+else
+    # Run specific test pattern
+    venv/bin/python -m pytest tests/ -v -k "$@"
+fi

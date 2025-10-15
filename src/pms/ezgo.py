@@ -123,126 +123,6 @@ class EzGoClient(PMSClient):
             # Default to NotSet for unknown codes
             return "NotSet"
 
-    def get_room_types(self, debug: bool = False) -> List[RoomType]:
-        """
-        Retrieve all room types from ezGo.
-
-        This calls AgencyChannels_HotelsList to get hotel metadata including room types.
-
-        Args:
-            debug: If True, print debug information
-
-        Returns:
-            List of RoomType objects
-
-        Raises:
-            PMSConnectionError: If unable to connect
-            PMSAuthenticationError: If authentication fails
-            PMSDataError: If response is invalid
-        """
-        try:
-            if debug:
-                print(f"\n[DEBUG] Calling AgencyChannels_HotelsList")
-                print(f"[DEBUG] Agency Channel ID: {self.agency_channel_id}")
-
-            auth = self._create_authentication()
-            response = self.soap_client.service.AgencyChannels_HotelsList(
-                auth,
-                self.agency_channel_id
-            )
-
-            if debug:
-                print(f"[DEBUG] Response received")
-
-            # Serialize the response to dict for easier parsing
-            response_dict = serialize_object(response)
-
-            # Check for errors
-            error_info = response_dict.get('Error', {})
-            if error_info and error_info.get('iErrorId', 0) != 0:
-                error_msg = error_info.get('sErrorDescription', 'Unknown error')
-                if "authentication" in error_msg.lower() or "permission" in error_msg.lower():
-                    raise PMSAuthenticationError(f"Authentication failed: {error_msg}")
-                raise PMSDataError(f"API error: {error_msg}")
-
-            room_types = []
-
-            hotels_data = response_dict.get('aHotels', {})
-            if hotels_data:
-                hotel_list = hotels_data.get('wsHotelInfo', [])
-
-                # Find our hotel in the list
-                hotel = None
-                for h in hotel_list:
-                    if h.get('iHotelCode') == self.hotel_id_int:
-                        hotel = h
-                        break
-
-                if not hotel:
-                    raise PMSDataError(f"Hotel {self.hotel_id} not found in hotel list")
-
-                # Extract room types from hotel
-                room_types_data = hotel.get('RoomTypes', {})
-                if room_types_data:
-                    room_type_list = room_types_data.get('wsHotelRoomInfo', [])
-                    for rt in room_type_list:
-                        # Get room type name (prefer primary language)
-                        name = ""
-                        name_data = rt.get('Name', {})
-                        if name_data:
-                            name_pairs = name_data.get('wsKeyValuePair', [])
-                            if name_pairs and len(name_pairs) > 0:
-                                name = name_pairs[0].get('Value', '')
-
-                        # Get description
-                        desc = ""
-                        desc_data = rt.get('Desc', {})
-                        if desc_data:
-                            desc_pairs = desc_data.get('wsKeyValuePair', [])
-                            if desc_pairs and len(desc_pairs) > 0:
-                                desc = desc_pairs[0].get('Value', '')
-
-                        # Get first image if available
-                        image_url = None
-                        images_data = rt.get('Images', {})
-                        if images_data:
-                            image_list = images_data.get('string', [])
-                            if image_list and len(image_list) > 0:
-                                image_url = image_list[0]
-
-                        room_type_code = str(rt.get('iRoomTypeCode', ''))
-
-                        room_types.append(
-                            RoomType(
-                                code=room_type_code,
-                                description=name or desc or f"Room Type {room_type_code}",
-                                image_url=image_url
-                            )
-                        )
-
-                        # Store room specs in cache for later use
-                        max_adults = rt.get('iMaxAdults', 0)
-                        max_children = rt.get('iMaxChilds', 0)
-                        max_infants = rt.get('iMaxInfants', 0)
-
-                        self._room_specs_cache[room_type_code] = {
-                            "max_adults": max_adults if max_adults > 0 else None,
-                            "max_children": max_children if max_children > 0 else None,
-                            "max_babies": max_infants if max_infants > 0 else None,
-                            "features": [],  # Could parse from Facilities
-                            "bed_configuration": None,
-                            "size_sqm": None,
-                        }
-
-            return room_types
-
-        except SoapFault as e:
-            raise PMSConnectionError(f"SOAP fault: {e}")
-        except Exception as e:
-            if isinstance(e, (PMSAuthenticationError, PMSDataError)):
-                raise
-            raise PMSConnectionError(f"Error retrieving room types: {e}")
-
     def get_rooms(self, room_number: Optional[str] = None, debug: bool = False) -> List[Room]:
         """
         Retrieve room information from ezGo.
@@ -262,41 +142,8 @@ class EzGoClient(PMSClient):
             PMSDataError: If response is invalid
         """
         # ezGo doesn't have individual room inventory like MiniHotel
-        # We'll return room types as rooms for API compatibility
-
-        room_types = self.get_room_types(debug=debug)
-        rooms = []
-
-        for rt in room_types:
-            # Get cached specs
-            specs = self._room_specs_cache.get(rt.code, {})
-
-            # Build occupancy limits
-            occupancy_limits = []
-            if specs.get("max_adults"):
-                occupancy_limits.append(GuestOccupancy(guest_type="A", max_count=specs["max_adults"]))
-            if specs.get("max_children"):
-                occupancy_limits.append(GuestOccupancy(guest_type="C", max_count=specs["max_children"]))
-            if specs.get("max_babies"):
-                occupancy_limits.append(GuestOccupancy(guest_type="B", max_count=specs["max_babies"]))
-
-            rooms.append(
-                Room(
-                    room_number=rt.code,  # Use room type code as room number
-                    room_type=rt.code,
-                    serial=None,
-                    status=None,
-                    wing=None,
-                    color=None,
-                    is_dorm=False,
-                    is_bed=False,
-                    occupancy_limits=occupancy_limits if occupancy_limits else None,
-                    attributes=None,
-                    image_url=rt.image_url
-                )
-            )
-
-        return rooms
+        # Room type information should be obtained from FAQ client instead
+        raise PMSDataError("get_rooms is not supported for EzGo. Use get_availability for room information, or FAQ client for static room details.")
 
     def get_availability(
         self,
@@ -460,18 +307,6 @@ class EzGoClient(PMSClient):
                             # Get room type name from cache or use code
                             room_type_name = f"Room Type {room_type_code}"
                             specs = self._room_specs_cache.get(room_type_code, {})
-
-                            # Try to get name from room types (if cached)
-                            if not specs:
-                                try:
-                                    rt_list = self.get_room_types(debug=False)
-                                    for rt in rt_list:
-                                        if rt.code == room_type_code:
-                                            room_type_name = rt.description
-                                            specs = self._room_specs_cache.get(room_type_code, {})
-                                            break
-                                except:
-                                    pass  # Use default name
 
                             # Map board base to description
                             board_descriptions = {

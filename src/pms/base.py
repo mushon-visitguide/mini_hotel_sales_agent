@@ -33,22 +33,6 @@ class PMSClient(ABC):
         self._availability_cache: Dict[Tuple, Tuple[float, AvailabilityResponse]] = {}
 
     @abstractmethod
-    def get_room_types(self) -> List[RoomType]:
-        """
-        Retrieve all room types available in the hotel.
-
-        This is typically static data that can be cached.
-
-        Returns:
-            List of RoomType objects
-
-        Raises:
-            PMSConnectionError: If unable to connect to PMS
-            PMSAuthenticationError: If authentication fails
-        """
-        pass
-
-    @abstractmethod
     def get_rooms(self, room_number: Optional[str] = None) -> List[Room]:
         """
         Retrieve room information including occupancy limits and attributes.

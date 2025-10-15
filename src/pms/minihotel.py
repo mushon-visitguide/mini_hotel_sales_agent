@@ -133,61 +133,6 @@ class MiniHotelClient(PMSClient):
         except Exception as e:
             raise PMSConnectionError(f"Unexpected error: {e}")
 
-    def get_room_types(self, debug: bool = False) -> List[RoomType]:
-        """
-        Retrieve all room types from MiniHotel.
-
-        Note: Only works in sandbox mode. Production should extract room types
-        from availability responses.
-
-        Args:
-            debug: If True, print debug information
-
-        Returns:
-            List of RoomType objects
-
-        Raises:
-            PMSConnectionError: If unable to connect
-            PMSDataError: If response is invalid
-        """
-        if not self.use_sandbox:
-            raise PMSDataError("get_room_types is only available in sandbox mode. Use get_availability to get room types in production.")
-
-        xml_request = f'''<?xml version="1.0" encoding="UTF-8"?>
-<Request>
-    <Settings name="getRoomTypes">
-        <Authentication username="{self.username}" password="{self.password}"/>
-        <Hotel id="{self.hotel_id}" />
-    </Settings>
-</Request>'''
-
-        response_xml = self._make_request(xml_request, "getRoomTypes", debug=debug)
-
-        try:
-            root = ET.fromstring(response_xml)
-            room_types = []
-
-            for room_type_elem in root.findall(".//RoomTypes"):
-                code = room_type_elem.findtext("Type", "")
-                description = room_type_elem.findtext("Description", "")
-                image = room_type_elem.findtext("Image", "")
-
-                if code:  # Only add if code is not empty
-                    room_types.append(
-                        RoomType(
-                            code=code,
-                            description=description,
-                            image_url=image if image else None,
-                        )
-                    )
-
-            return room_types
-
-        except ET.ParseError as e:
-            raise PMSDataError(f"Invalid XML response: {e}")
-        except Exception as e:
-            raise PMSDataError(f"Error parsing room types: {e}")
-
     def get_rooms(self, room_number: Optional[str] = None, debug: bool = False) -> List[Room]:
         """
         Retrieve room information from MiniHotel.

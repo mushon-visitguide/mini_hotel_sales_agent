@@ -1,0 +1,7 @@
+requests
+aiohttp
+python-dotenv
+pytest>=7.0.0
+openai>=1.0.0
+pydantic>=2.0.0
+pyyaml
