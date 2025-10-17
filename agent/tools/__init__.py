@@ -2,3 +2,4 @@
 # Import to trigger @registry.tool() decorators
 from . import pms
 from . import faq
+from . import availability

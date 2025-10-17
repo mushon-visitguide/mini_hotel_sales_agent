@@ -10,6 +10,7 @@ from agent.tools.registry import registry
 from agent.tools.pms import tools as pms_tools  # noqa: F401
 from agent.tools.faq import tools as faq_tools  # noqa: F401
 from agent.tools.calendar import tools as calendar_tools  # noqa: F401
+from agent.tools.availability import tools as availability_tools  # noqa: F401
 
 logger = logging.getLogger(__name__)
 

@@ -3,6 +3,7 @@ import json
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 from .client import LLMClient
 from .schemas import PlanningResult
 
@@ -133,8 +134,13 @@ class ToolPlanner:
         # Start with base system configuration
         base_prompt = self.system_config.get("prompt", "")
 
-        # Add planner instructions
+        # Add planner instructions with current date injected
         planner_instructions = self.planner_prompt.get("system_prompt", "")
+
+        # Get current date in YYYY-MM-DD format (Asia/Jerusalem timezone)
+        from zoneinfo import ZoneInfo
+        current_date = datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%Y-%m-%d")
+        planner_instructions = planner_instructions.replace("{current_date}", current_date)
 
         # Add examples for few-shot learning
         examples = self._format_examples()

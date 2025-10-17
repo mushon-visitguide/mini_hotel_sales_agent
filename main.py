@@ -93,10 +93,10 @@ def colorize_json(data, indent_level=0):
 load_dotenv()
 
 # Hotel credentials
-PMS_TYPE = "minihotel"
-PMS_USERNAME = os.getenv("MINIHOTEL_USERNAME", "visitguide")
-PMS_PASSWORD = os.getenv("MINIHOTEL_PASSWORD", "visg#!71R")
-HOTEL_ID = "wayinn"
+PMS_TYPE = "ezgo"
+PMS_USERNAME = os.getenv("EZGO_USERNAME", "9600")
+PMS_PASSWORD = os.getenv("EZGO_PASSWORD", "688E3n")
+HOTEL_ID = "9600"
 USE_SANDBOX = False
 
 

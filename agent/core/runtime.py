@@ -3,6 +3,7 @@ import asyncio
 from typing import List, Dict, Any
 from agent.llm.schemas import ToolCall
 from agent.tools.registry import registry
+from agent.tools.availability.tools import summarize_multi_room_mixed, summarize_multi_room_simple
 
 
 class Runtime:
@@ -81,6 +82,13 @@ class Runtime:
                 wave_tools,
                 results,
                 credentials,
+                debug
+            )
+
+            # Auto-summarize multi-room availability if detected
+            wave_results = await self._post_process_multi_room(
+                wave_tools,
+                wave_results,
                 debug
             )
 
@@ -316,3 +324,93 @@ class Runtime:
                 if isinstance(dep_result, dict) and key in dep_result:
                     return dep_result[key]
         return None
+
+    async def _post_process_multi_room(
+        self,
+        wave_tools: List[ToolCall],
+        wave_results: Dict[str, Any],
+        debug: bool
+    ) -> Dict[str, Any]:
+        """
+        Auto-detect and summarize multi-room availability requests.
+
+        When multiple pms.get_availability calls are made in the same wave,
+        automatically run the appropriate summarizer and inject results.
+
+        Args:
+            wave_tools: Tools that were executed in this wave
+            wave_results: Results from the wave
+            debug: Enable debug output
+
+        Returns:
+            Updated results with multi-room summary if applicable
+        """
+        # Find all pms.get_availability calls in this wave
+        availability_calls = [
+            (tool, wave_results.get(tool.id))
+            for tool in wave_tools
+            if tool.tool == "pms.get_availability" and wave_results.get(tool.id) and "error" not in wave_results.get(tool.id, {})
+        ]
+
+        # Need at least 2 availability calls for multi-room
+        if len(availability_calls) < 2:
+            return wave_results
+
+        if debug:
+            print(f"\n[Runtime] Detected {len(availability_calls)} availability calls - auto-summarizing multi-room booking")
+
+        # Extract occupancies and results
+        room_requirements = []
+        availability_results = []
+
+        for tool, result in availability_calls:
+            args = tool.args or {}
+            room_requirements.append({
+                "adults": args.get("adults", 2),
+                "children": args.get("children", 0),
+                "babies": args.get("babies", 0)
+            })
+            availability_results.append(result)
+
+        # Determine if all occupancies are the same
+        first_occupancy = room_requirements[0]
+        all_same = all(
+            req["adults"] == first_occupancy["adults"] and
+            req["children"] == first_occupancy["children"] and
+            req["babies"] == first_occupancy["babies"]
+            for req in room_requirements
+        )
+
+        try:
+            if all_same:
+                # Simple case - same occupancy for all rooms
+                if debug:
+                    print(f"[Runtime] Using simple summarizer (same occupancy: {first_occupancy['adults']}A, {first_occupancy['children']}C, {first_occupancy['babies']}B)")
+
+                # Use first result as the availability data
+                summary = await summarize_multi_room_simple(
+                    availability_data=availability_results[0],
+                    rooms_needed=len(availability_calls)
+                )
+            else:
+                # Mixed case - different occupancies
+                if debug:
+                    print(f"[Runtime] Using mixed summarizer (different occupancies)")
+
+                summary = await summarize_multi_room_mixed(
+                    availability_results=availability_results,
+                    room_requirements=room_requirements
+                )
+
+            # Inject summary into results with special key
+            wave_results["_multi_room_summary"] = summary
+
+            if debug:
+                print(f"[Runtime] Multi-room summary: can_fulfill={summary.get('can_fulfill')}, options={len(summary.get('options', []))}")
+
+        except Exception as e:
+            if debug:
+                print(f"[Runtime] Multi-room summarization failed: {e}")
+            # Don't fail the whole request, just skip summarization
+
+        return wave_results

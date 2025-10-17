@@ -4,10 +4,10 @@ from src.faq.faq_client import FAQClient
 
 
 @registry.tool(
-    name="faq.get_rooms_and_pricing",
-    description="Get comprehensive room types and pricing information from hotel FAQ"
+    name="faq.get_rooms_info",
+    description="Get room types, amenities, configurations, and general pricing information"
 )
-async def get_rooms_and_pricing() -> str:
+async def get_rooms_info() -> str:
     """
     Get detailed room types and pricing information.
 
@@ -24,12 +24,40 @@ async def get_rooms_and_pricing() -> str:
     faq_client = FAQClient()
     info = faq_client.get_rooms_and_pricing_info()
 
-    return f"Room and Pricing Information:\n\n{info}"
+    return f"Room Information:\n\n{info}"
+
+
+@registry.tool(
+    name="faq.get_hotel_info",
+    description="Get complete hotel/resort information: facilities, services, location, activities, WiFi, and guest guide"
+)
+async def get_hotel_info() -> str:
+    """
+    Get comprehensive hotel/resort information.
+
+    This combines:
+    - Facilities (spa, pool, gym, etc.)
+    - Services available
+    - Location and surroundings
+    - Activities and attractions
+    - WiFi and technical info for guests
+    - Stay guide for current guests
+
+    Returns:
+        str: Natural language formatted hotel information
+    """
+    faq_client = FAQClient()
+
+    # Combine facilities/services with stay guide
+    facilities_info = faq_client.get_facilities_and_services_info()
+    stay_guide_info = faq_client.get_my_stay_guide_info()
+
+    return f"Hotel Information:\n\n{facilities_info}\n\nGuest Guide:\n\n{stay_guide_info}"
 
 
 @registry.tool(
     name="faq.get_policies_and_procedures",
-    description="Get hotel policies, check-in/out times, cancellation policies, etc."
+    description="Get hotel policies: check-in/out times, cancellation policies, payment terms, house rules"
 )
 async def get_policies_and_procedures() -> str:
     """
@@ -42,37 +70,3 @@ async def get_policies_and_procedures() -> str:
     info = faq_client.get_policies_and_procedures_info()
 
     return f"Policies and Procedures:\n\n{info}"
-
-
-@registry.tool(
-    name="faq.get_facilities_and_services",
-    description="Get information about hotel facilities, services, location, and activities"
-)
-async def get_facilities_and_services() -> str:
-    """
-    Get facilities and services information.
-
-    Returns:
-        str: Natural language formatted facilities and services information
-    """
-    faq_client = FAQClient()
-    info = faq_client.get_facilities_and_services_info()
-
-    return f"Facilities and Services:\n\n{info}"
-
-
-@registry.tool(
-    name="faq.get_my_stay_guide",
-    description="Get practical information for current guests (WiFi, door codes, troubleshooting, etc.)"
-)
-async def get_my_stay_guide() -> str:
-    """
-    Get stay guide information for current guests.
-
-    Returns:
-        str: Natural language formatted stay guide information
-    """
-    faq_client = FAQClient()
-    info = faq_client.get_my_stay_guide_info()
-
-    return f"Stay Guide for Current Guests:\n\n{info}"

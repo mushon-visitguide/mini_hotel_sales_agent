@@ -77,6 +77,7 @@ class EzGoClient(PMSClient):
 
         # Cache for room type specifications
         self._room_specs_cache = {}
+        self._room_specs_loaded = False
 
     @property
     def supports_guest_count(self) -> bool:
@@ -122,6 +123,85 @@ class EzGoClient(PMSClient):
         else:
             # Default to NotSet for unknown codes
             return "NotSet"
+
+    def _load_room_specifications(self, debug: bool = False):
+        """
+        Load room type specifications from ezGo AgencyChannels_HotelsList.
+
+        This populates the room specs cache with occupancy and other details.
+        Called automatically on first availability request.
+
+        Args:
+            debug: If True, print debug information
+        """
+        if self._room_specs_loaded:
+            return
+
+        try:
+            if debug:
+                print(f"[DEBUG] Loading room specifications from AgencyChannels_HotelsList")
+
+            auth = self._create_authentication()
+            response = self.soap_client.service.AgencyChannels_HotelsList(
+                Token=auth,
+                Id_AgencyChannel=self.agency_channel_id
+            )
+
+            response_dict = serialize_object(response)
+
+            # Check for errors
+            error_info = response_dict.get('Error', {})
+            if error_info and error_info.get('iErrorId', 0) != 0:
+                error_msg = error_info.get('sErrorDescription', 'Unknown error')
+                if debug:
+                    print(f"[DEBUG] Error loading room specs: {error_msg}")
+                return
+
+            # Parse room types
+            hotels_data = response_dict.get('aHotels', {})
+            if hotels_data:
+                hotel_list = hotels_data.get('wsHotelInfo', [])
+                for hotel in hotel_list:
+                    if hotel.get('iHotelCode') == self.hotel_id_int:
+                        room_types_data = hotel.get('RoomTypes', {})
+                        if room_types_data:
+                            room_types_list = room_types_data.get('wsHotelRoomInfo', [])
+                            for rt in room_types_list:
+                                room_type_code = str(rt.get('iRoomTypeCode', ''))
+
+                                # Extract specifications
+                                max_adults = rt.get('iMaxAdults')
+                                max_children = rt.get('iMaxChilds')
+                                max_babies = rt.get('iMaxInfants')
+
+                                # Convert to None if 0 or negative
+                                if max_adults is not None and max_adults <= 0:
+                                    max_adults = None
+                                if max_children is not None and max_children <= 0:
+                                    max_children = None
+                                if max_babies is not None and max_babies <= 0:
+                                    max_babies = None
+
+                                # Store in cache
+                                self._room_specs_cache[room_type_code] = {
+                                    "max_adults": max_adults,
+                                    "max_children": max_children,
+                                    "max_babies": max_babies,
+                                    # Could add more fields like images, facilities, etc.
+                                }
+
+                                if debug:
+                                    print(f"[DEBUG] Loaded specs for room {room_type_code}: "
+                                          f"{max_adults}A/{max_children}C/{max_babies}B")
+
+            self._room_specs_loaded = True
+            if debug:
+                print(f"[DEBUG] Loaded specifications for {len(self._room_specs_cache)} room types")
+
+        except Exception as e:
+            if debug:
+                print(f"[DEBUG] Failed to load room specifications: {e}")
+            # Don't raise - we can continue without specs
 
     def get_rooms(self, room_number: Optional[str] = None, debug: bool = False) -> List[Room]:
         """
@@ -189,6 +269,9 @@ class EzGoClient(PMSClient):
         # Validate guest counts
         if adults < 1:
             raise PMSValidationError("At least 1 adult is required")
+
+        # Load room specifications if not already loaded
+        self._load_room_specifications(debug=debug)
 
         # Check cache first
         if use_cache:
@@ -308,6 +391,19 @@ class EzGoClient(PMSClient):
                             room_type_name = f"Room Type {room_type_code}"
                             specs = self._room_specs_cache.get(room_type_code, {})
 
+                            # Extract max occupancy from the API response
+                            max_adults = room.get('iMaxAdults')
+                            max_children = room.get('iMaxChilds')
+                            max_babies = room.get('iMaxInfants')
+
+                            # Convert to None if 0 or negative
+                            if max_adults is not None and max_adults <= 0:
+                                max_adults = None
+                            if max_children is not None and max_children <= 0:
+                                max_children = None
+                            if max_babies is not None and max_babies <= 0:
+                                max_babies = None
+
                             # Map board base to description
                             board_descriptions = {
                                 "RO": "Room Only",
@@ -360,10 +456,10 @@ class EzGoClient(PMSClient):
                                         room_type_name_local=None,
                                         inventory=inventory,
                                         prices=prices,
-                                        # Merge cached specifications
-                                        max_adults=specs.get("max_adults"),
-                                        max_children=specs.get("max_children"),
-                                        max_babies=specs.get("max_babies"),
+                                        # Use API response values first, fall back to cached specs
+                                        max_adults=max_adults if max_adults is not None else specs.get("max_adults"),
+                                        max_children=max_children if max_children is not None else specs.get("max_children"),
+                                        max_babies=max_babies if max_babies is not None else specs.get("max_babies"),
                                         bed_configuration=specs.get("bed_configuration"),
                                         size_sqm=specs.get("size_sqm"),
                                         features=specs.get("features"),
