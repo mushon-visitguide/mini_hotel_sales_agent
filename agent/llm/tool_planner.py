@@ -53,6 +53,7 @@ class ToolPlanner:
         message: str,
         conversation_history: Optional[List[dict]] = None,
         previous_results: Optional[dict] = None,
+        context: Optional[str] = None,
         debug: bool = False
     ) -> PlanningResult:
         """
@@ -67,6 +68,7 @@ class ToolPlanner:
             message: Original user message
             conversation_history: List of conversation turns
             previous_results: Dict mapping tool_id to result from previous waves
+            context: Optional conversation context (summary + recent messages)
             debug: Enable debug logging
 
         Returns:
@@ -77,6 +79,11 @@ class ToolPlanner:
         """
         if conversation_history is None:
             conversation_history = [{"role": "user", "content": message}]
+
+        # Prepend conversation context if provided
+        if context:
+            context_prefix = f"## Conversation Context\n{context}\n\n## Current User Message\n"
+            conversation_history[-1]["content"] = context_prefix + conversation_history[-1]["content"]
 
         # Add previous results to context if available
         if previous_results:

@@ -7,8 +7,11 @@ Simple interface to test the LLM-based tool planning system.
 import asyncio
 import os
 import json
+import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 from agent.core.orchestrator import Orchestrator
+from src.conversation import ContextManager
 
 # ANSI Color codes for terminal output
 class Colors:
@@ -107,15 +110,26 @@ async def main():
     print(f"{Colors.BOLD_CYAN}🏨 Hotel Sales AI Agent - Interactive Mode{Colors.END}")
     print(f"{Colors.BOLD_CYAN}{'=' * 70}{Colors.END}")
     print()
-    print(f"{Colors.YELLOW}Initializing orchestrator...{Colors.END}")
+    print(f"{Colors.YELLOW}Initializing orchestrator and conversation state...{Colors.END}")
 
     # Create orchestrator
     orchestrator = Orchestrator.create_default()
 
+    # Create conversation state with session ID
+    session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"
+    context_manager = ContextManager.create(
+        session_id=session_id,
+        hotel_id=HOTEL_ID,
+        pms_type=PMS_TYPE
+    )
+
     print(f"{Colors.BOLD_GREEN}✓ Orchestrator ready!{Colors.END}")
+    print(f"{Colors.BOLD_GREEN}✓ Conversation state initialized (session: {session_id}){Colors.END}")
     print()
     print(f"{Colors.CYAN}Type your message to see how the LLM plans tool execution.{Colors.END}")
     print(f"{Colors.CYAN}Type 'quit' or 'exit' to stop.{Colors.END}")
+    print(f"{Colors.CYAN}Type 'status' to see booking context status.{Colors.END}")
+    print(f"{Colors.CYAN}Type 'reset' to start a new conversation session.{Colors.END}")
     print()
     print(f"{Colors.BLUE}{'-' * 70}{Colors.END}")
     print()
@@ -135,13 +149,44 @@ async def main():
             print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
             break
 
+        # Handle special commands
+        if message.lower() == 'status':
+            booking_status = context_manager.get_booking_status()
+            context_stats = context_manager.get_context_stats()
+
+            print(f"\n{Colors.BOLD_CYAN}📊 SESSION STATUS{Colors.END}")
+            print(f"{Colors.CYAN}Session ID: {session_id}{Colors.END}")
+            print(f"{Colors.CYAN}Total turns: {context_stats['total_turns']}{Colors.END}")
+            print(f"{Colors.CYAN}Total messages: {context_stats['total_messages']}{Colors.END}")
+            print(f"{Colors.CYAN}Total tools executed: {context_stats['total_tool_executions']}{Colors.END}")
+            print()
+            print(f"{Colors.BOLD_CYAN}📝 BOOKING STATUS{Colors.END}")
+            print(f"{Colors.YELLOW}Ready for booking: {booking_status['ready_for_booking']}{Colors.END}")
+            if booking_status['missing_info']:
+                print(f"{Colors.RED}Missing: {', '.join(booking_status['missing_info'])}{Colors.END}")
+            print()
+            print(f"{Colors.BOLD_CYAN}🎫 BOOKING CONTEXT{Colors.END}")
+            print(colorize_json(booking_status['booking_context'], indent_level=0))
+            print()
+            continue
+
+        if message.lower() == 'reset':
+            session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"
+            context_manager = ContextManager.create(
+                session_id=session_id,
+                hotel_id=HOTEL_ID,
+                pms_type=PMS_TYPE
+            )
+            print(f"\n{Colors.BOLD_GREEN}✓ Started new session: {session_id}{Colors.END}\n")
+            continue
+
         print()
         print(f"{Colors.BOLD_YELLOW}{'=' * 70}{Colors.END}")
         print(f"{Colors.BOLD_YELLOW}📋 PLANNING & EXECUTION{Colors.END}")
         print(f"{Colors.BOLD_YELLOW}{'=' * 70}{Colors.END}")
 
         try:
-            # Process message with debug output
+            # Process message with debug output and conversation state
             result = await orchestrator.process_message(
                 message=message,
                 pms_type=PMS_TYPE,
@@ -150,6 +195,7 @@ async def main():
                 hotel_id=HOTEL_ID,
                 pms_use_sandbox=USE_SANDBOX,
                 pms_url_code=URL_CODE,
+                context_manager=context_manager,
                 debug=True
             )
 
@@ -187,6 +233,17 @@ async def main():
                         print(colorize_json(tool_result, indent_level=1))
                     else:
                         print(f"    {Colors.CYAN}{tool_result}{Colors.END}")
+
+            # Show booking status if making progress
+            booking_status = context_manager.get_booking_status()
+            if booking_status['booking_context']['check_in'] or booking_status['booking_context']['selected_room_code']:
+                print(f"\n{Colors.BOLD_CYAN}🎫 Booking Progress:{Colors.END}")
+                if booking_status['ready_for_booking']:
+                    print(f"  {Colors.BOLD_GREEN}✓ Ready to book!{Colors.END}")
+                else:
+                    print(f"  {Colors.YELLOW}Still collecting information...{Colors.END}")
+                    if booking_status['missing_info']:
+                        print(f"  {Colors.YELLOW}Missing: {', '.join(booking_status['missing_info'])}{Colors.END}")
 
         except Exception as e:
             print(f"\n{Colors.BOLD_RED}❌ Error: {e}{Colors.END}")

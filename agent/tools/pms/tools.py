@@ -70,7 +70,6 @@ async def get_availability(
     children: int = 0,
     babies: int = 0,
     rate_code: str = "WEB",
-    room_type_filter: str = "*ALL*",
     board_filter: str = "*ALL*",
     # Optional PMS config
     pms_use_sandbox: bool = False,
@@ -126,7 +125,7 @@ async def get_availability(
             children=children,
             babies=babies,
             rate_code=rate_code,
-            room_type_filter=room_type_filter,
+            room_type_filter="*ALL*",  # Always get all rooms - answering agent will filter
             board_filter=board_filter
         )
     )

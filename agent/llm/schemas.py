@@ -57,6 +57,20 @@ class Slots(BaseModel):
         description="Specific room type code user selected"
     )
 
+    # Guest information
+    guest_name: Optional[str] = Field(
+        default=None,
+        description="Guest's full name for booking"
+    )
+    guest_phone: Optional[str] = Field(
+        default=None,
+        description="Guest's phone number"
+    )
+    guest_email: Optional[str] = Field(
+        default=None,
+        description="Guest's email address"
+    )
+
 
 class ToolCall(BaseModel):
     """

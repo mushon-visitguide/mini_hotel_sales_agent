@@ -41,19 +41,39 @@ async def resolve_date_hint(
     check_in_dt = datetime.strptime(result.check_in, "%Y-%m-%d")
     check_out_dt = datetime.strptime(result.check_out, "%Y-%m-%d")
 
-    check_in_formatted = check_in_dt.strftime("%B %d, %Y")
-    check_out_formatted = check_out_dt.strftime("%B %d, %Y")
+    # Get day names
+    check_in_day = check_in_dt.strftime("%A")  # e.g., "Wednesday"
+    check_out_day = check_out_dt.strftime("%A")  # e.g., "Sunday"
 
+    # Format dates with day names
+    check_in_formatted = check_in_dt.strftime("%A, %B %d, %Y")  # "Wednesday, October 29, 2025"
+    check_out_formatted = check_out_dt.strftime("%A, %B %d, %Y")  # "Sunday, November 9, 2025"
+
+    # Calculate duration
+    nights = result.nights
+    if nights < 7:
+        duration = f"{nights} nights"
+    elif nights == 7:
+        duration = "1 week"
+    elif nights % 7 == 0:
+        duration = f"{nights // 7} weeks"
+    else:
+        weeks = nights / 7
+        duration = f"{weeks:.1f} weeks"
+
+    # Build description with days and duration
     if result.nights == 1:
         description = f"{date_hint.capitalize()} is {check_in_formatted} (1 night stay, checking out {check_out_formatted})"
     else:
-        description = f"{date_hint.capitalize()} is from {check_in_formatted} to {check_out_formatted} ({result.nights} nights)"
+        description = f"{date_hint.capitalize()} is from {check_in_formatted} to {check_out_formatted} ({nights} nights / {duration})"
 
     # Return structured data with date objects for other tools to use
     return {
         "check_in": result.get_check_in_date(),
         "check_out": result.get_check_out_date(),
         "nights": result.nights,
+        "check_in_day": check_in_day,
+        "check_out_day": check_out_day,
         "description": description
     }
 

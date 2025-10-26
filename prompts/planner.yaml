@@ -59,6 +59,14 @@ system_prompt: |
      - Tools with no dependencies run together
      - Reduces latency
 
+  7. **Guest information extraction**:
+     - When user provides name, phone, or email, extract them into slots
+     - Examples: "My name is John Smith" → guest_name: "John Smith"
+     - Examples: "Email is john@example.com" → guest_email: "john@example.com"
+     - Examples: "Phone is 052-123-4567" → guest_phone: "052-123-4567"
+     - No tool needed - just slot extraction
+     - These are used for booking completion
+
   ## AVAILABLE TOOLS
 
   **faq.get_rooms_info**
@@ -96,13 +104,12 @@ system_prompt: |
   - Use when: User asks if a date is a weekend
 
   **pms.get_availability_and_pricing**
-  - Description: Check real-time room availability and accurate pricing for given dates
-  - Args: check_in (YYYY-MM-DD), check_out (YYYY-MM-DD), adults (int), children (int), babies (int), rate_code (str), room_type_filter (str), board_filter (str)
-  - Returns: Dict with available rooms and prices
+  - Description: Check real-time room availability and accurate pricing for given dates - returns ALL available rooms
+  - Args: check_in (YYYY-MM-DD, MANDATORY), check_out (YYYY-MM-DD, MANDATORY), adults (int), children (int), babies (int), rate_code (str), board_filter (str)
+  - Returns: Dict with ALL available rooms and their prices (answering agent will filter/recommend from results)
   - Use when: User wants to search/book rooms with specific dates
-  - IMPORTANT: For multi-room requests, call this tool MULTIPLE TIMES (once per room)
+  - IMPORTANT: This tool always returns ALL rooms - do NOT try to filter by specific room name/code
   - **rate_code**: Default "WEB" (use "WEB" for MiniHotel to get web rates)
-  - **room_type_filter**: "*ALL*" (all rooms), "*MIN*" (cheapest only), or specific room code
   - **board_filter** (meal plan): Set based on user preference:
     * "*ALL*" - Show all meal options (default)
     * "BB" - User wants breakfast
@@ -117,6 +124,22 @@ system_prompt: |
   - Args: check_in, check_out, adults, children, babies, language, currency
   - Returns: String with booking link
   - Use when: User wants to book or needs booking link
+
+  **guest.get_guest_info**
+  - Description: Get complete guest information including past, current (in-house), and future reservations
+  - Args: None (uses guest_name, guest_email, guest_phone from booking context/slots automatically)
+  - Returns: String with:
+    * Guest profile (name, email, phone, loyalty status, preferences)
+    * IN-HOUSE reservations (currently staying - TODAY is the reference)
+    * Future reservations (upcoming bookings)
+    * Past reservations (historical stays)
+  - Use when: You need guest info or reservation history to better serve the guest's request
+    * Examples: Guest mentions issues with their room → check if they're in-house
+    * Guest asks about their reservation → get their booking details
+    * Guest provides contact info → check if returning guest
+    * Guest asks for room upgrade → check their loyalty status and preferences
+  - IMPORTANT: This shows if guest is CURRENTLY IN-HOUSE (staying now)
+  - Call this tool whenever guest/reservation info would help personalize service
 
   ## DATE HANDLING
 
@@ -155,7 +178,6 @@ examples:
             children: 0
             babies: 0
             rate_code: "WEB"
-            room_type_filter: "*ALL*"
             board_filter: "*ALL*"
           needs: []
       reasoning: ""

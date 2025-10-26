@@ -6,11 +6,15 @@ from agent.llm import ToolPlanner, LLMClient
 from agent.core.runtime import Runtime
 from agent.tools.registry import registry
 
+# Import conversation state management
+from src.conversation import ContextManager
+
 # Import tools to register them
 from agent.tools.pms import tools as pms_tools  # noqa: F401
 from agent.tools.faq import tools as faq_tools  # noqa: F401
 from agent.tools.calendar import tools as calendar_tools  # noqa: F401
 from agent.tools.availability import tools as availability_tools  # noqa: F401
+from agent.tools.guest import tools as guest_tools  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +91,7 @@ class Orchestrator:
         pms_use_sandbox: bool = False,
         pms_url_code: Optional[str] = None,
         pms_agency_channel_id: Optional[int] = None,
+        context_manager: Optional[ContextManager] = None,
         debug: bool = False
     ) -> Dict[str, Any]:
         """
@@ -101,6 +106,7 @@ class Orchestrator:
             pms_use_sandbox: Use sandbox mode
             pms_url_code: URL code for MiniHotel
             pms_agency_channel_id: Agency channel for EzGo
+            context_manager: Optional context manager for stateful conversations
             debug: Enable debug output
 
         Returns:
@@ -113,9 +119,29 @@ class Orchestrator:
             print(f"Message: {message}")
             print()
 
+        # Add user message to conversation state if context manager provided
+        if context_manager:
+            await context_manager.add_user_message(message)
+            if debug:
+                print(f"[Orchestrator] Added to conversation state: {context_manager}")
+                print()
+
         # Step 1: Plan tool execution using LLM
         try:
-            planning_result = await self.tool_planner.plan(message, debug=debug)
+            # Build context for planner if we have conversation state
+            context_prompt = None
+            if context_manager:
+                context_prompt = context_manager.build_context_for_planner()
+                if debug and context_prompt:
+                    print("[Orchestrator] Using conversation context:")
+                    print(context_prompt)
+                    print()
+
+            planning_result = await self.tool_planner.plan(
+                message,
+                context=context_prompt,
+                debug=debug
+            )
         except Exception as e:
             logger.error(f"Tool planning failed: {e}")
             raise RuntimeError(f"Failed to plan tool execution: {e}")
@@ -157,6 +183,58 @@ class Orchestrator:
             print("\n" + "=" * 70)
             print("[Orchestrator] Execution complete")
             print("=" * 70 + "\n")
+
+        # Update conversation state if context manager provided
+        if context_manager:
+            # Update booking context from extracted slots
+            slots_dict = planning_result.slots.dict(exclude_none=True)
+
+            # Extract important data from tool results and save to context
+            for tool_call in planning_result.tools:
+                tool_result = results.get(tool_call.id)
+
+                # Calendar tools → extract dates
+                if tool_call.tool.startswith("calendar.") and isinstance(tool_result, dict):
+                    if "check_in" in tool_result and tool_result["check_in"]:
+                        slots_dict["check_in"] = tool_result["check_in"]
+                    if "check_out" in tool_result and tool_result["check_out"]:
+                        slots_dict["check_out"] = tool_result["check_out"]
+
+                # Guest info tool → extract contact info (if not already in slots)
+                if tool_call.tool == "guest.get_guest_info" and isinstance(tool_result, str):
+                    # Tool result is formatted string, but we already have the info in slots
+                    # No additional extraction needed - guest info comes from slots
+                    pass
+
+            context_manager.update_booking_context(slots_dict)
+
+            # Add tool executions to conversation history
+            tool_executions = []
+            for tool_call in planning_result.tools:
+                tool_id = tool_call.id
+                tool_result = results.get(tool_id)
+
+                # Determine success
+                is_error = isinstance(tool_result, dict) and 'error' in tool_result
+                success = not is_error
+                error_message = tool_result.get('error') if is_error else None
+
+                tool_executions.append({
+                    "tool_name": tool_call.tool,
+                    "tool_id": tool_id,
+                    "inputs": tool_call.args,
+                    "result": tool_result,
+                    "success": success,
+                    "error_message": error_message
+                })
+
+            # Batch add tool executions (will compress outputs)
+            await context_manager.add_tool_executions_batch(tool_executions)
+
+            if debug:
+                print(f"[Orchestrator] Updated conversation state")
+                print(f"[Orchestrator] Booking status: {context_manager.get_booking_status()}")
+                print()
 
         # Return results
         return {
