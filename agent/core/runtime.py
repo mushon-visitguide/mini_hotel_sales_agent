@@ -334,7 +334,7 @@ class Runtime:
         """
         Auto-detect and summarize multi-room availability requests.
 
-        When multiple pms.get_availability calls are made in the same wave,
+        When multiple pms.get_availability_and_pricing calls are made in the same wave,
         automatically run the appropriate summarizer and inject results.
 
         Args:
@@ -345,11 +345,11 @@ class Runtime:
         Returns:
             Updated results with multi-room summary if applicable
         """
-        # Find all pms.get_availability calls in this wave
+        # Find all pms.get_availability_and_pricing calls in this wave
         availability_calls = [
             (tool, wave_results.get(tool.id))
             for tool in wave_tools
-            if tool.tool == "pms.get_availability" and wave_results.get(tool.id) and "error" not in wave_results.get(tool.id, {})
+            if tool.tool == "pms.get_availability_and_pricing" and wave_results.get(tool.id) and "error" not in wave_results.get(tool.id, {})
         ]
 
         # Need at least 2 availability calls for multi-room

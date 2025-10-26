@@ -92,11 +92,12 @@ def colorize_json(data, indent_level=0):
 # Load environment variables
 load_dotenv()
 
-# Hotel credentials
-PMS_TYPE = "ezgo"
-PMS_USERNAME = os.getenv("EZGO_USERNAME", "9600")
-PMS_PASSWORD = os.getenv("EZGO_PASSWORD", "688E3n")
-HOTEL_ID = "9600"
+# Hotel credentials - Using MiniHotel for Oreldi71
+PMS_TYPE = "minihotel"
+PMS_USERNAME = os.getenv("MINIHOTEL_USERNAME", "visitguide")
+PMS_PASSWORD = os.getenv("MINIHOTEL_PASSWORD", "visg#!71R")
+HOTEL_ID = "Oreldi71"  # Hotel GDS code
+URL_CODE = "oreldirot"  # URL code for MiniHotel booking links
 USE_SANDBOX = False
 
 
@@ -148,6 +149,7 @@ async def main():
                 pms_password=PMS_PASSWORD,
                 hotel_id=HOTEL_ID,
                 pms_use_sandbox=USE_SANDBOX,
+                pms_url_code=URL_CODE,
                 debug=True
             )
 

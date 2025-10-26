@@ -28,7 +28,7 @@ async def get_rooms_info() -> str:
 
 
 @registry.tool(
-    name="faq.get_hotel_info",
+    name="faq.get_hotel_all_info",
     description="Get complete hotel/resort information: facilities, services, location, activities, WiFi, and guest guide"
 )
 async def get_hotel_info() -> str:

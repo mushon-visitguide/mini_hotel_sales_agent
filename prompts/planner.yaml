@@ -67,7 +67,7 @@ system_prompt: |
   - Returns: String with room information
   - Use when: User asks about rooms, room types, amenities, what rooms available, cheapest room, room features
 
-  **faq.get_hotel_info**
+  **faq.get_hotel_all_info**
   - Description: Get complete hotel/resort information including facilities, services, location, activities, and guest guide
   - Args: None
   - Returns: String with comprehensive hotel information
@@ -95,13 +95,13 @@ system_prompt: |
   - Returns: String like "Monday, October 20th is not a weekend"
   - Use when: User asks if a date is a weekend
 
-  **pms.get_availability**
+  **pms.get_availability_and_pricing**
   - Description: Check real-time room availability and accurate pricing for given dates
   - Args: check_in (YYYY-MM-DD), check_out (YYYY-MM-DD), adults (int), children (int), babies (int), rate_code (str), room_type_filter (str), board_filter (str)
   - Returns: Dict with available rooms and prices
   - Use when: User wants to search/book rooms with specific dates
   - IMPORTANT: For multi-room requests, call this tool MULTIPLE TIMES (once per room)
-  - **rate_code**: Default "ILS" (can be "USD" if user specifies)
+  - **rate_code**: Default "WEB" (use "WEB" for MiniHotel to get web rates)
   - **room_type_filter**: "*ALL*" (all rooms), "*MIN*" (cheapest only), or specific room code
   - **board_filter** (meal plan): Set based on user preference:
     * "*ALL*" - Show all meal options (default)
@@ -154,7 +154,7 @@ examples:
             adults: 2
             children: 0
             babies: 0
-            rate_code: "ILS"
+            rate_code: "WEB"
             room_type_filter: "*ALL*"
             board_filter: "*ALL*"
           needs: []

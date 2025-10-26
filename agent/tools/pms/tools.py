@@ -3,6 +3,8 @@ import asyncio
 from datetime import date
 from typing import Optional
 from agent.tools.registry import registry
+from src.faq.faq_client import FAQClient
+from agent.tools.pms.enrichment import enrich_room_types
 
 
 def create_pms_client(
@@ -51,8 +53,8 @@ def create_pms_client(
 
 
 @registry.tool(
-    name="pms.get_availability",
-    description="Get real-time room availability and pricing from PMS",
+    name="pms.get_availability_and_pricing",
+    description="Get real-time room availability and pricing from PMS with enriched room details",
     redact=["pms_username", "pms_password"]
 )
 async def get_availability(
@@ -67,7 +69,7 @@ async def get_availability(
     adults: int = 2,
     children: int = 0,
     babies: int = 0,
-    rate_code: str = "USD",
+    rate_code: str = "WEB",
     room_type_filter: str = "*ALL*",
     board_filter: str = "*ALL*",
     # Optional PMS config
@@ -112,9 +114,10 @@ async def get_availability(
         pms_agency_channel_id=pms_agency_channel_id
     )
 
-    # Call PMS (sync method -> run in executor)
+    # Call PMS availability and FAQ rooms info in parallel
     loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(
+
+    pms_task = loop.run_in_executor(
         None,
         lambda: client.get_availability(
             check_in=check_in,
@@ -128,7 +131,40 @@ async def get_availability(
         )
     )
 
-    # Convert to dict
+    faq_task = loop.run_in_executor(
+        None,
+        lambda: FAQClient().get_rooms_and_pricing_info()
+    )
+
+    # Wait for both to complete
+    response, faq_rooms_info = await asyncio.gather(pms_task, faq_task)
+
+    # Convert ALL room types to dict format (use response.room_types directly)
+    room_types = [
+        {
+            "room_type_code": rt.room_type_code,
+            "room_type_name": rt.room_type_name,
+            "available": rt.inventory.allocation if rt.inventory else 0,
+            "prices": [
+                {
+                    "board_code": p.board_code,
+                    "board_description": p.board_description,
+                    "price": p.price,
+                    "price_non_refundable": p.price_non_refundable
+                }
+                for p in (rt.prices or [])
+            ],
+            "max_adults": rt.max_adults,
+            "max_children": rt.max_children,
+            "max_babies": rt.max_babies
+        }
+        for rt in (response.room_types or [])
+    ]
+
+    # Enrich rooms with mapping data (adds room_name and room_desc)
+    enriched_rooms = enrich_room_types(room_types, hotel_id)
+
+    # Return enriched availability data
     return {
         "hotel_id": response.hotel_id,
         "hotel_name": response.hotel_name,
@@ -138,26 +174,8 @@ async def get_availability(
         "adults": response.adults,
         "children": response.children,
         "babies": response.babies,
-        "room_types": [
-            {
-                "room_type_code": rt.room_type_code,
-                "room_type_name": rt.room_type_name,
-                "available": rt.inventory.allocation if rt.inventory else 0,
-                "prices": [
-                    {
-                        "board_code": p.board_code,
-                        "board_description": p.board_description,
-                        "price": p.price,
-                        "price_non_refundable": p.price_non_refundable
-                    }
-                    for p in (rt.prices or [])
-                ],
-                "max_adults": rt.max_adults,
-                "max_children": rt.max_children,
-                "max_babies": rt.max_babies
-            }
-            for rt in response.get_available_rooms()
-        ]
+        "room_types": enriched_rooms,
+        "rooms_info": faq_rooms_info  # FAQ room details for additional context
     }
 
 
