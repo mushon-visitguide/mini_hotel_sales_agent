@@ -15,7 +15,7 @@ async def resolve_date_hint(
     current_date: Optional[str] = None,
     timezone: str = "Asia/Jerusalem",
     default_nights: int = 1
-) -> dict:
+) -> str:
     """
     Resolve fuzzy date hint to concrete dates.
 
@@ -26,7 +26,7 @@ async def resolve_date_hint(
         default_nights: Default stay length (default: 1 night)
 
     Returns:
-        Dict with check_in and check_out as date objects, plus description for natural language response
+        Human-readable description of the resolved dates for the response generator
     """
     resolver = get_resolver()
     result = await resolver.resolve(
@@ -67,15 +67,20 @@ async def resolve_date_hint(
     else:
         description = f"{date_hint.capitalize()} is from {check_in_formatted} to {check_out_formatted} ({nights} nights / {duration})"
 
-    # Return structured data with date objects for other tools to use
-    return {
+    # Return structured data for orchestrator AND readable text for response generator
+    # The orchestrator extracts check_in/check_out, but __str__ will show description
+    class DateResult(dict):
+        def __str__(self):
+            return self.get("__display__", dict.__repr__(self))
+        def __repr__(self):
+            return self.__str__()
+
+    return DateResult({
         "check_in": result.get_check_in_date(),
         "check_out": result.get_check_out_date(),
         "nights": result.nights,
-        "check_in_day": check_in_day,
-        "check_out_day": check_out_day,
-        "description": description
-    }
+        "__display__": description
+    })
 
 
 @registry.tool(

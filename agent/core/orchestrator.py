@@ -236,11 +236,47 @@ class Orchestrator:
                 print(f"[Orchestrator] Booking status: {context_manager.get_booking_status()}")
                 print()
 
-        # Return results
+        # Generate natural language response
+        response = None
+        if context_manager:
+            from agent.llm.responder import ResponseGenerator
+
+            try:
+                responder = ResponseGenerator()
+
+                # Get current tool executions (the ones we just added)
+                current_tool_results = context_manager.get_recent_tool_executions(len(planning_result.tools))
+
+                response = await responder.generate_response(
+                    user_message=message,
+                    recent_messages=context_manager.get_recent_messages(5),
+                    current_tool_results=current_tool_results,
+                    planner_action=planning_result.action
+                )
+
+                # Save assistant response to conversation
+                await context_manager.add_assistant_message(response)
+
+                if debug:
+                    print(f"[Orchestrator] Generated response:")
+                    print(f"{response}")
+                    print()
+
+            except Exception as e:
+                logger.error(f"Response generation failed: {e}")
+                # Fallback to action if response generation fails
+                response = planning_result.action
+        else:
+            # No context manager - use action as response
+            response = planning_result.action
+
+        # Return results with response
         return {
+            "response": response,                    # Natural language response for user
             "action": planning_result.action,
             "reasoning": planning_result.reasoning,
             "slots": planning_result.slots.dict(exclude_none=True),
             "tools": [t.id for t in planning_result.tools],
-            "results": results
+            "results": results,                      # Keep for debugging
+            "booking_status": context_manager.get_booking_status() if context_manager else None
         }

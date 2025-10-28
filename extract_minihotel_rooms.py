@@ -298,7 +298,7 @@ def main():
     # Configuration - Update these values
     USERNAME = "visitguide"
     PASSWORD = "visg#!71R"
-    HOTEL_ID = "oreldi71"
+    HOTEL_ID = "wayinn"
 
     try:
         room_types = extract_minihotel_rooms(USERNAME, PASSWORD, HOTEL_ID)

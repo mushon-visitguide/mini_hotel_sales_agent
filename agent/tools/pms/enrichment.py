@@ -80,21 +80,21 @@ def enrich_room_types(room_types: List[Dict[str, Any]], hotel_id: str = "visitgu
 
     for room in room_types:
         enriched_room = dict(room)  # Copy
-        room_code = room.get("room_type_code")
+        room_name = room.get("room_type_name")
 
-        if room_code:
-            # Try to match and enrich
-            match = match_room_code_to_info(room_code, room_mappings)
+        if room_name:
+            # Try to match and enrich using room_type_name (not room_type_code)
+            match = match_room_code_to_info(room_name, room_mappings)
 
             if match:
                 enriched_room["room_name"] = match["room_name"]
                 enriched_room["room_desc"] = match["room_desc"]
             else:
                 # No match - use PMS name as fallback
-                enriched_room["room_name"] = room.get("room_type_name", room_code)
+                enriched_room["room_name"] = room_name
                 enriched_room["room_desc"] = None
         else:
-            enriched_room["room_name"] = room.get("room_type_name", "Unknown")
+            enriched_room["room_name"] = room.get("room_type_code", "Unknown")
             enriched_room["room_desc"] = None
 
         enriched_rooms.append(enriched_room)

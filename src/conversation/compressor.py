@@ -38,94 +38,59 @@ def compress_tool_output(tool_name: str, tool_result: Any) -> Tuple[str, Optiona
 
 def _compress_faq_output(tool_name: str, result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
     """
-    Compress FAQ tool outputs.
+    FAQ tools are NOT compressed - return full text.
 
-    FAQ tools return text content. We compress by:
-    1. Limiting to first ~200 characters
-    2. Extracting key facts if structured
+    FAQ content contains important details (capacities, policies, amenities)
+    that should not be truncated.
     """
+    metadata = {"type": "faq", "tool": tool_name}
+
+    if "rooms" in tool_name:
+        metadata["content_type"] = "rooms_info"
+    elif "hotel" in tool_name:
+        metadata["content_type"] = "hotel_info"
+    elif "policies" in tool_name:
+        metadata["content_type"] = "policies"
+
+    # Return full result without compression
     if isinstance(result, str):
-        # Simple text response - truncate with ellipsis
-        max_length = 200
-        if len(result) > max_length:
-            summary = result[:max_length].rsplit(' ', 1)[0] + "..."
-        else:
-            summary = result
-
-        # Extract key metadata based on tool type
-        metadata = {"type": "faq", "tool": tool_name}
-
-        if "rooms" in tool_name:
-            metadata["content_type"] = "rooms_info"
-        elif "hotel" in tool_name:
-            metadata["content_type"] = "hotel_info"
-        elif "policies" in tool_name:
-            metadata["content_type"] = "policies"
-
-        return summary, metadata
-
-    elif isinstance(result, dict):
-        # Structured FAQ response
-        summary_parts = []
-        if "rooms" in result:
-            summary_parts.append(f"{len(result['rooms'])} room types available")
-        if "facilities" in result:
-            summary_parts.append(f"Facilities: {', '.join(result['facilities'][:3])}")
-
-        summary = "; ".join(summary_parts) if summary_parts else str(result)[:200]
-        return summary, {"type": "faq", "data_keys": list(result.keys())}
-
-    return str(result)[:200], {"type": "faq"}
+        return result, metadata
+    else:
+        return str(result), metadata
 
 
 def _compress_calendar_output(tool_name: str, result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
     """
-    Compress calendar tool outputs.
-
-    Calendar tools return date information - we extract the key dates.
+    Calendar tools are NOT compressed - return full result.
     """
+    metadata = {"type": "calendar", "tool": tool_name}
+
+    if "resolve_date" in tool_name:
+        metadata["resolved"] = True
+
+    # Return full result without compression
     if isinstance(result, str):
-        # Extract dates from the result string if possible
-        # Result typically like: "Monday is October 20th, 2025"
-        summary = result
-        metadata = {"type": "calendar", "tool": tool_name}
-
-        # Try to extract dates for structured reference
-        # This is a simple heuristic - in production might use regex
-        if "resolve_date" in tool_name:
-            metadata["resolved"] = True
-
-        return summary, metadata
-
+        return result, metadata
     elif isinstance(result, dict):
-        # Structured date response
-        summary_parts = []
-        if "check_in" in result:
-            summary_parts.append(f"Check-in: {result['check_in']}")
-        if "check_out" in result:
-            summary_parts.append(f"Check-out: {result['check_out']}")
-        if "nights" in result:
-            summary_parts.append(f"{result['nights']} nights")
-
-        summary = ", ".join(summary_parts)
-        return summary, {"type": "calendar", "dates": result}
-
-    return str(result), {"type": "calendar"}
+        # Keep structured format
+        return str(result), {"type": "calendar", "dates": result}
+    else:
+        return str(result), metadata
 
 
 def _compress_pms_output(tool_name: str, result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
     """
-    Compress PMS tool outputs.
-
-    PMS tools return availability data (large) or booking links (small).
-    For availability, we compress to key stats + top rooms.
+    PMS tools are NOT compressed - return full result.
     """
+    metadata = {"type": "pms", "tool": tool_name}
+
     if "availability" in tool_name:
-        return _compress_availability(result)
+        metadata["content_type"] = "availability"
     elif "booking_link" in tool_name:
-        return _compress_booking_link(result)
-    else:
-        return _compress_generic(result)
+        metadata["content_type"] = "booking_link"
+
+    # Return full result without compression
+    return str(result), metadata
 
 
 def _compress_availability(result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
@@ -160,24 +125,49 @@ def _compress_availability(result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
 
     # Get top rooms (by availability or price)
     top_rooms = available_rooms[:5]  # Take first 5
-    room_summaries = []
-    for room in top_rooms:
+
+    # Build detailed room listings for top 3 rooms
+    detailed_rooms = []
+    for room in top_rooms[:3]:
         room_name = room.get("room_name") or room.get("room_type_name", "Unknown")
+        room_desc = room.get("room_desc", "")
         available_count = room.get("available", 0)
 
         # Get cheapest price for this room
         room_prices = [p.get("price", 0) for p in room.get("prices", [])]
         cheapest = min(room_prices) if room_prices else 0
 
-        room_summaries.append(f"{room_name} ({available_count} avail, from {cheapest} {currency})")
+        # Extract first line of description (has the key features)
+        if room_desc:
+            # Get first meaningful line (skip room name line)
+            lines = [line.strip() for line in room_desc.split('\n') if line.strip()]
+            features_line = ""
+            for line in lines:
+                # Skip the room name line and empty lines
+                if line and not line.startswith('סוויטת') and not line.startswith('דירת') and not line.startswith('אוראל'):
+                    features_line = line
+                    break
 
-    # Build summary
+            if features_line:
+                detailed_rooms.append(
+                    f"• {room_name}: {features_line} (Price: {cheapest} {currency}, Available: {available_count})"
+                )
+            else:
+                detailed_rooms.append(
+                    f"• {room_name}: {available_count} available, from {cheapest} {currency}"
+                )
+        else:
+            detailed_rooms.append(
+                f"• {room_name}: {available_count} available, from {cheapest} {currency}"
+            )
+
+    # Build summary with detailed room information
     summary_parts = [
-        f"Found {total_available} available room types",
-        f"Price range: {min_price}-{max_price} {currency}",
-        f"Top rooms: {'; '.join(room_summaries[:3])}"
+        f"Found {total_available} available room types. Price range: {min_price}-{max_price} {currency}.",
+        "\nTop available rooms with details:"
     ]
-    summary = ". ".join(summary_parts)
+    summary_parts.extend(detailed_rooms)
+    summary = "\n".join(summary_parts)
 
     # Build metadata for reference
     metadata = {
@@ -192,8 +182,9 @@ def _compress_availability(result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
             {
                 "code": r.get("room_type_code"),
                 "name": r.get("room_name") or r.get("room_type_name"),
+                "description": r.get("room_desc"),
                 "available": r.get("available"),
-                "min_price": min([p.get("price", 0) for p in r.get("prices", [])])
+                "min_price": min([p.get("price", 0) for p in r.get("prices", [])]) if r.get("prices") else 0
             }
             for r in top_rooms[:5]
         ]

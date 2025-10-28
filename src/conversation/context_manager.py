@@ -226,6 +226,30 @@ class ContextManager:
             include_recent_tools=self.keep_recent_tools
         )
 
+    def get_recent_messages(self, limit: int) -> List:
+        """
+        Get recent messages for response generation.
+
+        Args:
+            limit: Maximum number of recent messages to return
+
+        Returns:
+            List of recent Message objects
+        """
+        return self.state.get_recent_messages(limit)
+
+    def get_recent_tool_executions(self, limit: int) -> List:
+        """
+        Get recent tool executions for response generation.
+
+        Args:
+            limit: Maximum number of recent tool executions to return
+
+        Returns:
+            List of recent ToolExecutionSummary objects
+        """
+        return self.state.get_recent_tool_executions(limit)
+
     def get_context_stats(self) -> Dict[str, Any]:
         """
         Get statistics about current context state.
@@ -253,7 +277,7 @@ class ContextManager:
 
     async def _check_and_summarize(self) -> None:
         """
-        Check if summarization is needed and trigger it.
+        Check if summarization is needed and trigger it (accumulative).
 
         Called automatically after adding messages.
         """
@@ -266,15 +290,25 @@ class ContextManager:
         )
 
         try:
-            # Get messages to summarize (up to current turn)
-            messages_to_summarize = self.state.messages.copy()
-            tools_to_summarize = self.state.tool_executions.copy()
+            # Get NEW messages since last summary (accumulative approach)
+            last_summarized = self.state.metadata.last_summarized_turn
+            new_messages = [
+                msg for msg in self.state.messages
+                if msg.turn_number > last_summarized
+            ]
 
-            # Generate summary
+            # Get NEW tool executions since last summary
+            new_tools = [
+                tool for tool in self.state.tool_executions
+                if tool.turn_number > last_summarized
+            ]
+
+            # Generate accumulative summary (includes previous summary + new messages)
             summary = summarize_conversation(
-                messages=messages_to_summarize,
-                tool_executions=tools_to_summarize,
-                llm_client=self.llm_client
+                messages=new_messages,
+                tool_executions=new_tools,
+                llm_client=self.llm_client,
+                previous_summary=self.state.conversation_summary  # Pass previous summary
             )
 
             # Update state
@@ -282,7 +316,8 @@ class ContextManager:
 
             logger.info(
                 f"Summarization complete: {len(summary)} chars, "
-                f"version {self.state.metadata.summary_version}"
+                f"version {self.state.metadata.summary_version}, "
+                f"summarized {len(new_messages)} new messages"
             )
 
         except Exception as e:

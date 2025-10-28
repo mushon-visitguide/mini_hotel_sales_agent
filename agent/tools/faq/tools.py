@@ -29,7 +29,7 @@ async def get_rooms_info() -> str:
 
 @registry.tool(
     name="faq.get_hotel_all_info",
-    description="Get complete hotel/resort information: facilities, services, location, activities, WiFi, and guest guide"
+    description="Get complete hotel/resort information: facilities, services, location, activities, policies, check-in/out times, cancellation, WiFi, and guest guide"
 )
 async def get_hotel_info() -> str:
     """
@@ -40,6 +40,7 @@ async def get_hotel_info() -> str:
     - Services available
     - Location and surroundings
     - Activities and attractions
+    - Policies and procedures (check-in/out, cancellation, payment, rules)
     - WiFi and technical info for guests
     - Stay guide for current guests
 
@@ -48,25 +49,9 @@ async def get_hotel_info() -> str:
     """
     faq_client = FAQClient()
 
-    # Combine facilities/services with stay guide
+    # Combine all hotel information
     facilities_info = faq_client.get_facilities_and_services_info()
+    policies_info = faq_client.get_policies_and_procedures_info()
     stay_guide_info = faq_client.get_my_stay_guide_info()
 
-    return f"Hotel Information:\n\n{facilities_info}\n\nGuest Guide:\n\n{stay_guide_info}"
-
-
-@registry.tool(
-    name="faq.get_policies_and_procedures",
-    description="Get hotel policies: check-in/out times, cancellation policies, payment terms, house rules"
-)
-async def get_policies_and_procedures() -> str:
-    """
-    Get hotel policies and procedures information.
-
-    Returns:
-        str: Natural language formatted policies and procedures information
-    """
-    faq_client = FAQClient()
-    info = faq_client.get_policies_and_procedures_info()
-
-    return f"Policies and Procedures:\n\n{info}"
+    return f"Hotel Information:\n\n{facilities_info}\n\nPolicies & Procedures:\n\n{policies_info}\n\nGuest Guide:\n\n{stay_guide_info}"

@@ -9,23 +9,19 @@ from agent.llm import LLMClient
 from src.models.conversation import Message, ToolExecutionSummary
 
 
-SUMMARIZATION_SYSTEM_PROMPT = """You are a conversation summarizer for a hotel booking assistant.
+SUMMARIZATION_SYSTEM_PROMPT = """Please summarize the conversation, focusing specifically on what the user requested.
 
-Your task is to create a concise summary of the conversation that captures:
-1. User's intent and goals (what they're trying to book/learn)
-2. Key information gathered (dates, guests, preferences)
-3. Decisions made (room selections, price points discussed)
-4. Questions asked and answered
-5. Current state (what's been resolved, what's pending)
+When summarizing, prioritize:
+1. What the user asked for (their requests, questions, needs)
+2. Key details the user provided (dates, number of guests, preferences, constraints)
+3. What information was retrieved for the user
+4. Any decisions or selections the user made
+5. What the user still needs or what remains unresolved
 
-Focus on facts and information that matter for continuing the conversation.
-Be very concise - aim for 3-5 sentences maximum.
+Keep the summary concise (3-5 sentences) and focused on the user's perspective and their requests.
 
-Example good summary:
-"User looking to book 2 rooms for family reunion, December 15-20 (5 nights), 2 adults + 2 children per room. Checked availability - found 13 rooms ranging 800-2500 ILS/night. User interested in 228A apartment (8 guests, 2BR, jacuzzi, 1850 ILS/night). Still need guest contact information to complete booking."
-
-Example bad summary:
-"The user said hello and then asked about availability. Then I showed them some rooms. They asked about prices. Then they selected a room."
+Example:
+"User requested availability for tomorrow, 2 adults. Showed 13 available rooms (480-810 ILS). User asked about room 228A capacity and features. Explained 228A accommodates up to 8 guests with 2 bedrooms, jacuzzi, kitchen (810 ILS/night). User still needs to provide name and contact info to complete booking."
 """
 
 
@@ -33,24 +29,26 @@ def summarize_conversation(
     messages: List[Message],
     tool_executions: Optional[List[ToolExecutionSummary]] = None,
     llm_client: Optional[LLMClient] = None,
+    previous_summary: Optional[str] = None,
     model: str = "gpt-4.1",
     max_tokens: int = 300
 ) -> str:
     """
-    Generate LLM-based summary of conversation.
+    Generate LLM-based summary of conversation (accumulative).
 
     Args:
-        messages: List of messages to summarize
+        messages: List of NEW messages to summarize (since last summary)
         tool_executions: Optional list of tool executions to include
         llm_client: LLM client to use (creates default if not provided)
+        previous_summary: Previous summary to build upon (for accumulative summarization)
         model: Model to use for summarization
         max_tokens: Maximum tokens for summary (default: 300 for ~200-250 words)
 
     Returns:
-        Concise summary text
+        Concise summary text (includes previous summary + new conversation)
     """
     if not messages:
-        return "No conversation yet."
+        return previous_summary or "No conversation yet."
 
     # Create LLM client if not provided
     if llm_client is None:
@@ -61,9 +59,22 @@ def summarize_conversation(
 
     # Call LLM for summarization
     try:
+        if previous_summary:
+            # Accumulative: Include previous summary and new messages
+            prompt = f"""Previous summary:
+{previous_summary}
+
+New conversation since then:
+{conversation_text}
+
+Please provide an updated summary that combines the previous summary with the new conversation."""
+        else:
+            # First time: Just summarize from scratch
+            prompt = f"Summarize this conversation:\n\n{conversation_text}"
+
         messages_for_llm = [
             {"role": "system", "content": SUMMARIZATION_SYSTEM_PROMPT},
-            {"role": "user", "content": f"Summarize this conversation:\n\n{conversation_text}"}
+            {"role": "user", "content": prompt}
         ]
 
         summary = llm_client.chat_completion(

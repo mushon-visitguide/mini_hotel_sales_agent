@@ -3,7 +3,6 @@ import asyncio
 from datetime import date
 from typing import Optional
 from agent.tools.registry import registry
-from src.faq.faq_client import FAQClient
 from agent.tools.pms.enrichment import enrich_room_types
 
 
@@ -75,32 +74,11 @@ async def get_availability(
     pms_use_sandbox: bool = False,
     pms_url_code: Optional[str] = None,
     pms_agency_channel_id: Optional[int] = None
-) -> dict:
+) -> str:
     """
     Get availability from PMS system.
 
-    Returns dict with structure:
-    {
-        "hotel_id": str,
-        "hotel_name": str,
-        "currency": str,
-        "check_in": date,
-        "check_out": date,
-        "room_types": [
-            {
-                "room_type_code": str,
-                "room_type_name": str,
-                "available": int,
-                "prices": [
-                    {
-                        "board_code": str,
-                        "board_description": str,
-                        "price": float
-                    }
-                ]
-            }
-        ]
-    }
+    Returns human-readable formatted text with availability and pricing information.
     """
     # Create PMS client
     client = create_pms_client(
@@ -113,10 +91,10 @@ async def get_availability(
         pms_agency_channel_id=pms_agency_channel_id
     )
 
-    # Call PMS availability and FAQ rooms info in parallel
+    # Call PMS availability
     loop = asyncio.get_event_loop()
 
-    pms_task = loop.run_in_executor(
+    response = await loop.run_in_executor(
         None,
         lambda: client.get_availability(
             check_in=check_in,
@@ -129,14 +107,6 @@ async def get_availability(
             board_filter=board_filter
         )
     )
-
-    faq_task = loop.run_in_executor(
-        None,
-        lambda: FAQClient().get_rooms_and_pricing_info()
-    )
-
-    # Wait for both to complete
-    response, faq_rooms_info = await asyncio.gather(pms_task, faq_task)
 
     # Convert ALL room types to dict format (use response.room_types directly)
     room_types = [
@@ -163,19 +133,49 @@ async def get_availability(
     # Enrich rooms with mapping data (adds room_name and room_desc)
     enriched_rooms = enrich_room_types(room_types, hotel_id)
 
-    # Return enriched availability data
-    return {
-        "hotel_id": response.hotel_id,
-        "hotel_name": response.hotel_name,
-        "currency": response.currency,
-        "check_in": response.check_in,
-        "check_out": response.check_out,
-        "adults": response.adults,
-        "children": response.children,
-        "babies": response.babies,
-        "room_types": enriched_rooms,
-        "rooms_info": faq_rooms_info  # FAQ room details for additional context
-    }
+    # Calculate number of nights
+    nights = (response.check_out - response.check_in).days
+
+    # Format guest info
+    guest_info = f"{response.adults} adult{'s' if response.adults != 1 else ''}"
+    if response.children > 0:
+        guest_info += f", {response.children} child{'ren' if response.children != 1 else ''}"
+    if response.babies > 0:
+        guest_info += f", {response.babies} baby/babies"
+
+    # Build formatted text output
+    output_lines = [
+        f"=== AVAILABILITY FOR {response.hotel_name.upper()} ===",
+        "",
+        f"Check-in: {response.check_in.strftime('%B %d, %Y')}",
+        f"Check-out: {response.check_out.strftime('%B %d, %Y')}",
+        f"Number of nights: {nights}",
+        f"Guests: {guest_info}",
+        "",
+        f"I have found the following {len(enriched_rooms)} available room(s):",
+        ""
+    ]
+
+    # Add each room
+    for i, room in enumerate(enriched_rooms, 1):
+        output_lines.append(f"{i}. {room.get('room_name', 'Unknown Room')}")
+        output_lines.append(f"   Available: {room['available']} room(s)")
+
+        # Add pricing options
+        if room.get('prices'):
+            output_lines.append("   Pricing:")
+            for price_option in room['prices']:
+                board_desc = price_option['board_description']
+                price_val = price_option['price']
+                output_lines.append(f"      - {board_desc}: {price_val} {response.currency}")
+
+        # Add room description
+        if room.get('room_desc'):
+            output_lines.append(f"   Description: {room['room_desc']}")
+
+        output_lines.append("")  # Blank line between rooms
+
+    return "\n".join(output_lines)
 
 
 @registry.tool(

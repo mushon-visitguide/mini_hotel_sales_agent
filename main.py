@@ -99,7 +99,7 @@ load_dotenv()
 PMS_TYPE = "minihotel"
 PMS_USERNAME = os.getenv("MINIHOTEL_USERNAME", "visitguide")
 PMS_PASSWORD = os.getenv("MINIHOTEL_PASSWORD", "visg#!71R")
-HOTEL_ID = "Oreldi71"  # Hotel GDS code
+HOTEL_ID = "wayinn"  # Hotel GDS code
 URL_CODE = "oreldirot"  # URL code for MiniHotel booking links
 USE_SANDBOX = False
 
@@ -199,51 +199,38 @@ async def main():
                 debug=True
             )
 
-            # Print summary
+            # Display natural language response
             print()
             print(f"{Colors.BOLD_GREEN}{'=' * 70}{Colors.END}")
-            print(f"{Colors.BOLD_GREEN}📊 RESULT SUMMARY{Colors.END}")
+            print(f"{Colors.BOLD_GREEN}💬 ASSISTANT RESPONSE{Colors.END}")
             print(f"{Colors.BOLD_GREEN}{'=' * 70}{Colors.END}")
-            print(f"\n{Colors.BOLD_CYAN}🎯 Action:{Colors.END} {Colors.YELLOW}{result['action']}{Colors.END}")
-            print(f"\n{Colors.BOLD_CYAN}💭 Reasoning:{Colors.END} {Colors.CYAN}{result['reasoning']}{Colors.END}")
+            print()
 
-            print(f"\n{Colors.BOLD_CYAN}🔧 Tools Executed:{Colors.END} {Colors.YELLOW}{len(result['tools'])}{Colors.END}")
-            for tool_id in result['tools']:
-                if tool_id in result['results']:
-                    print(f"  {Colors.GREEN}✅ {tool_id}{Colors.END}")
-                else:
-                    print(f"  {Colors.RED}❌ {tool_id}{Colors.END}")
+            # Display the generated response
+            if result.get('response'):
+                print(f"{Colors.CYAN}{result['response']}{Colors.END}")
+            else:
+                # Fallback if no response was generated
+                print(f"{Colors.YELLOW}{result['action']}{Colors.END}")
 
-            print(f"\n{Colors.BOLD_CYAN}📦 Slots Extracted:{Colors.END}")
-            for key, value in result['slots'].items():
-                if value and value != [] and value != 2:  # Skip empty/default values
-                    print(f"  {Colors.YELLOW}- {key}:{Colors.END} {Colors.CYAN}{value}{Colors.END}")
+            print()
 
-            print(f"\n{Colors.BOLD_CYAN}📋 Results:{Colors.END}")
-            for tool_id, tool_result in result['results'].items():
-                if isinstance(tool_result, dict) and 'error' in tool_result:
-                    print(f"\n  {Colors.RED}❌ {tool_id}:{Colors.END}")
-                    print(f"    {Colors.BOLD_RED}{tool_result['error']}{Colors.END}")
-                else:
-                    # Show full result with pretty formatting
-                    print(f"\n  {Colors.GREEN}✅ {Colors.BOLD_GREEN}{tool_id}:{Colors.END}")
-                    if isinstance(tool_result, dict):
-                        print(colorize_json(tool_result, indent_level=1))
-                    elif isinstance(tool_result, list):
-                        print(colorize_json(tool_result, indent_level=1))
-                    else:
-                        print(f"    {Colors.CYAN}{tool_result}{Colors.END}")
-
-            # Show booking status if making progress
+            # Show booking progress if making progress
             booking_status = context_manager.get_booking_status()
             if booking_status['booking_context']['check_in'] or booking_status['booking_context']['selected_room_code']:
-                print(f"\n{Colors.BOLD_CYAN}🎫 Booking Progress:{Colors.END}")
+                print(f"{Colors.BOLD_CYAN}🎫 Booking Progress:{Colors.END}")
                 if booking_status['ready_for_booking']:
                     print(f"  {Colors.BOLD_GREEN}✓ Ready to book!{Colors.END}")
                 else:
                     print(f"  {Colors.YELLOW}Still collecting information...{Colors.END}")
                     if booking_status['missing_info']:
                         print(f"  {Colors.YELLOW}Missing: {', '.join(booking_status['missing_info'])}{Colors.END}")
+                print()
+
+            # Technical details (collapsed by default)
+            print(f"{Colors.BOLD_CYAN}📊 Technical Details:{Colors.END}")
+            print(f"  {Colors.YELLOW}Tools executed: {len(result['tools'])}{Colors.END}")
+            print(f"  {Colors.CYAN}Action: {result['action']}{Colors.END}")
 
         except Exception as e:
             print(f"\n{Colors.BOLD_RED}❌ Error: {e}{Colors.END}")
