@@ -1,0 +1,7 @@
+query,latency_seconds,model,tools_used
+"availability for tomorrow",19.237,gpt-4.1,"calendar.resolve_date_hint, pms.get_availability_and_pricing"
+"when is check-in time",3.866,gpt-4.1,faq.get_hotel_all_info
+"availability for tomorrow",21.201,claude-sonnet-4-5-20250929,"calendar.resolve_date_hint, pms.get_availability_and_pricing"
+"when is check-in time",8.289,claude-sonnet-4-5-20250929,faq.get_hotel_all_info
+"availability for tomorrow",15.147,claude-haiku-4-5-20251001,"calendar.resolve_date_hint, pms.get_availability_and_pricing"
+"when is check-in time",6.658,claude-haiku-4-5-20251001,faq.get_hotel_all_info

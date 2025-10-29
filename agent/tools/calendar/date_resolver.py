@@ -45,7 +45,7 @@ class DateResolver:
         Args:
             llm_client: LLM client (creates default if not provided)
         """
-        self.llm = llm_client or LLMClient(api_key=os.getenv("OPENAI_API_KEY"))
+        self.llm = llm_client or LLMClient()
 
     async def resolve(
         self,

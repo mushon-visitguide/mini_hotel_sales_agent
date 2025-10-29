@@ -32,7 +32,8 @@ class Orchestrator:
     def __init__(
         self,
         tool_planner: ToolPlanner,
-        runtime: Runtime
+        runtime: Runtime,
+        prerun_calendar_tool: bool = False
     ):
         """
         Initialize orchestrator with LLM components.
@@ -40,20 +41,26 @@ class Orchestrator:
         Args:
             tool_planner: LLM-based tool planner
             runtime: Tool execution runtime
+            prerun_calendar_tool: If True, run calendar.resolve_date_hint in parallel with planner
+                                  to save time when planner decides to use it
         """
         self.tool_planner = tool_planner
         self.runtime = runtime
+        self.prerun_calendar_tool = prerun_calendar_tool
 
         logger.info("Orchestrator initialized with LLM-based tool planning")
         logger.info(f"Registered tools: {registry.list_tools()}")
+        if prerun_calendar_tool:
+            logger.info("Pre-run calendar tool: ENABLED (will run in parallel with planner)")
 
     @classmethod
     def create_default(
         cls,
         openai_api_key: Optional[str] = None,
         prompts_dir: Path | str = "./prompts",
-        model: str = "gpt-4.1",
-        runtime_timeout: float = 30.0
+        model: Optional[str] = None,
+        runtime_timeout: float = 30.0,
+        prerun_calendar_tool: bool = False
     ) -> "Orchestrator":
         """
         Factory method to create orchestrator with default configuration.
@@ -61,13 +68,14 @@ class Orchestrator:
         Args:
             openai_api_key: OpenAI API key (defaults to env var)
             prompts_dir: Directory containing prompt files
-            model: OpenAI model to use
+            model: Model to use (defaults to LLM_MODEL env var or provider default)
             runtime_timeout: Default timeout for tool execution in seconds
+            prerun_calendar_tool: If True, run calendar.resolve_date_hint in parallel with planner
 
         Returns:
             Configured Orchestrator instance
         """
-        # Create LLM client
+        # Create LLM client (model=None will use env var or provider default)
         llm_client = LLMClient(api_key=openai_api_key, model=model)
 
         # Create tool planner
@@ -79,7 +87,7 @@ class Orchestrator:
         # Create runtime
         runtime = Runtime(default_timeout=runtime_timeout)
 
-        return cls(tool_planner, runtime)
+        return cls(tool_planner, runtime, prerun_calendar_tool=prerun_calendar_tool)
 
     async def process_message(
         self,
@@ -126,6 +134,17 @@ class Orchestrator:
                 print(f"[Orchestrator] Added to conversation state: {context_manager}")
                 print()
 
+        # OPTIMIZATION: Pre-run calendar tool in parallel with planner if flag enabled
+        import asyncio
+        prerun_calendar_task = None
+        if self.prerun_calendar_tool:
+            if debug:
+                print("[Orchestrator] Pre-running calendar.resolve_date_hint in parallel with planner...")
+            # Start calendar tool (will run in parallel with planner)
+            prerun_calendar_task = asyncio.create_task(
+                registry.call("calendar.resolve_date_hint", date_hint=message)
+            )
+
         # Step 1: Plan tool execution using LLM
         try:
             # Build context for planner if we have conversation state
@@ -168,11 +187,40 @@ class Orchestrator:
             "pms_agency_channel_id": pms_agency_channel_id
         }
 
+        # Check if planner wants to use calendar tool and we pre-ran it
+        prerun_results = {}
+        if prerun_calendar_task:
+            # Check if any planned tool is calendar.resolve_date_hint
+            calendar_tool_ids = [
+                tool.id for tool in planning_result.tools
+                if tool.tool == "calendar.resolve_date_hint"
+            ]
+
+            if calendar_tool_ids:
+                # Planner wants calendar results - wait for pre-run to complete
+                try:
+                    prerun_result = await prerun_calendar_task
+                    # Cache result for all calendar tool IDs in the plan
+                    for tool_id in calendar_tool_ids:
+                        prerun_results[tool_id] = prerun_result
+                    if debug:
+                        print(f"[Orchestrator] ✓ Pre-run calendar result ready (saved {len(prerun_result) / 1024:.1f}KB)")
+                        print(f"[Orchestrator] Cached for tool IDs: {calendar_tool_ids}")
+                except Exception as e:
+                    if debug:
+                        print(f"[Orchestrator] Pre-run calendar failed: {e}, will run normally")
+            else:
+                # Planner doesn't need calendar tool - cancel pre-run task
+                prerun_calendar_task.cancel()
+                if debug:
+                    print("[Orchestrator] Planner doesn't need calendar tool, pre-run cancelled")
+
         # Step 2: Execute tools DAG via runtime
         try:
             results = await self.runtime.execute(
                 tools=planning_result.tools,
                 credentials=pms_credentials,
+                prerun_results=prerun_results,  # Pass pre-executed results
                 debug=debug
             )
         except Exception as e:

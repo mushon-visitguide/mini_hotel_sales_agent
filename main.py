@@ -112,8 +112,12 @@ async def main():
     print()
     print(f"{Colors.YELLOW}Initializing orchestrator and conversation state...{Colors.END}")
 
-    # Create orchestrator
-    orchestrator = Orchestrator.create_default()
+    # Create orchestrator with optional calendar pre-run optimization
+    prerun_calendar = os.getenv("PRERUN_CALENDAR_TOOL", "false").lower() == "true"
+    orchestrator = Orchestrator.create_default(prerun_calendar_tool=prerun_calendar)
+
+    if prerun_calendar:
+        print(f"{Colors.GREEN}⚡ Calendar pre-run optimization: ENABLED{Colors.END}")
 
     # Create conversation state with session ID
     session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}"

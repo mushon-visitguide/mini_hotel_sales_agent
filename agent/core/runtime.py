@@ -31,6 +31,7 @@ class Runtime:
         self,
         tools: List[ToolCall],
         credentials: Dict[str, Any],
+        prerun_results: Dict[str, Any] = None,
         debug: bool = False
     ) -> Dict[str, Any]:
         """
@@ -45,6 +46,7 @@ class Runtime:
         Args:
             tools: List of ToolCall from LLM planner
             credentials: PMS credentials to inject into tool args
+            prerun_results: Pre-executed tool results (tool_id -> result) to skip execution
             debug: Enable debug output
 
         Returns:
@@ -59,9 +61,11 @@ class Runtime:
 
         if debug:
             print(f"\n[Runtime] Executing {len(tools)} tools")
+            if prerun_results:
+                print(f"[Runtime] Using {len(prerun_results)} pre-executed results")
 
-        # Track results
-        results: Dict[str, Any] = {}
+        # Track results - initialize with pre-run results if provided
+        results: Dict[str, Any] = prerun_results.copy() if prerun_results else {}
 
         # Organize into waves
         waves = self._organize_into_waves(tools)
@@ -159,34 +163,54 @@ class Runtime:
 
         Args:
             tools: Tools to execute
-            previous_results: Results from previous waves
+            previous_results: Results from previous waves (includes prerun_results)
             credentials: PMS credentials
             debug: Enable debug output
 
         Returns:
             Dict mapping tool IDs to results
         """
-        # Create tasks for each tool
-        tasks = [
-            self._execute_tool(tool, previous_results, credentials, debug)
-            for tool in tools
-        ]
+        # Filter out tools that already have results (from prerun)
+        tools_to_execute = []
+        skipped_tools = []
 
-        # Execute all in parallel
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # Package results
-        wave_results = {}
-        for tool, result in zip(tools, results):
-            if isinstance(result, Exception):
-                error_msg = str(result)
-                if debug:
-                    print(f"  [Tool] {tool.id} FAILED: {error_msg}")
-                wave_results[tool.id] = {"error": error_msg}
+        for tool in tools:
+            if tool.id in previous_results:
+                skipped_tools.append(tool)
             else:
-                if debug:
-                    print(f"  [Tool] {tool.id} completed")
-                wave_results[tool.id] = result
+                tools_to_execute.append(tool)
+
+        if debug and skipped_tools:
+            for tool in skipped_tools:
+                print(f"  [Tool] {tool.id}: {tool.tool} SKIPPED (using pre-run result)")
+
+        wave_results = {}
+
+        # Add pre-run results to wave results
+        for tool in skipped_tools:
+            wave_results[tool.id] = previous_results[tool.id]
+
+        # Create tasks for tools that need execution
+        if tools_to_execute:
+            tasks = [
+                self._execute_tool(tool, previous_results, credentials, debug)
+                for tool in tools_to_execute
+            ]
+
+            # Execute all in parallel
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Package results
+            for tool, result in zip(tools_to_execute, results):
+                if isinstance(result, Exception):
+                    error_msg = str(result)
+                    if debug:
+                        print(f"  [Tool] {tool.id} FAILED: {error_msg}")
+                    wave_results[tool.id] = {"error": error_msg}
+                else:
+                    if debug:
+                        print(f"  [Tool] {tool.id} completed")
+                    wave_results[tool.id] = result
 
         return wave_results
 

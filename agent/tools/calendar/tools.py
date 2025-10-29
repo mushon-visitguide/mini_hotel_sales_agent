@@ -1,9 +1,65 @@
 """Calendar tools registration for the agent tool registry"""
-from typing import Optional
+from typing import Optional, List, Tuple
+from datetime import datetime, date
 from agent.tools.registry import registry
 from .date_resolver import get_resolver
-from .holiday_resolver import get_holiday_resolver
+from .holiday_resolver import get_holiday_resolver, get_all_holidays_cached
 from .weekend_checker import get_weekend_checker
+
+
+def _find_overlapping_holidays_from_str(check_in_date: date, check_out_date: date, holidays_str: str) -> List[Tuple[str, str, str]]:
+    """
+    Find holidays that overlap with the given date range.
+
+    Args:
+        check_in_date: Check-in date
+        check_out_date: Check-out date
+        holidays_str: Pre-fetched holidays string from get_all_holidays_cached()
+
+    Returns:
+        List of tuples: (holiday_name, start_date, end_date)
+    """
+    overlapping = []
+
+    for line in holidays_str.strip().split('\n'):
+        if not line.strip():
+            continue
+
+        # Parse format: "Hanukkah 2025: 2025-12-25 to 2026-01-02"
+        try:
+            parts = line.split(': ')
+            if len(parts) != 2:
+                continue
+
+            holiday_name_year = parts[0].strip()
+            date_range = parts[1].strip()
+
+            # Extract holiday name without year
+            name_parts = holiday_name_year.rsplit(' ', 1)
+            if len(name_parts) == 2:
+                holiday_name = name_parts[0]
+            else:
+                holiday_name = holiday_name_year
+
+            # Parse dates
+            date_parts = date_range.split(' to ')
+            if len(date_parts) != 2:
+                continue
+
+            holiday_start = datetime.strptime(date_parts[0].strip(), '%Y-%m-%d').date()
+            holiday_end = datetime.strptime(date_parts[1].strip(), '%Y-%m-%d').date()
+
+            # Check for overlap: ranges overlap if start1 <= end2 AND start2 <= end1
+            if check_in_date <= holiday_end and holiday_start <= check_out_date:
+                overlapping.append((
+                    holiday_name,
+                    holiday_start.strftime('%B %d, %Y'),
+                    holiday_end.strftime('%B %d, %Y')
+                ))
+        except (ValueError, IndexError):
+            continue
+
+    return overlapping
 
 
 @registry.tool(
@@ -28,6 +84,20 @@ async def resolve_date_hint(
     Returns:
         Human-readable description of the resolved dates for the response generator
     """
+    # Get current date for holiday fetching
+    if current_date is None:
+        from datetime import date as dt_date
+        current_date = dt_date.today().isoformat()
+
+    current_dt = datetime.strptime(current_date, "%Y-%m-%d")
+    current_year = current_dt.year
+
+    # OPTIMIZATION: Fetch holidays once upfront (will be cached and reused)
+    # This happens in parallel conceptually with resolver setup
+    import asyncio
+    holidays_task = asyncio.create_task(asyncio.to_thread(get_all_holidays_cached, current_year))
+
+    # Start date resolution (this also calls get_all_holidays_cached internally, but hits cache)
     resolver = get_resolver()
     result = await resolver.resolve(
         date_hint=date_hint,
@@ -36,36 +106,42 @@ async def resolve_date_hint(
         default_nights=default_nights
     )
 
+    # Wait for holidays to be ready (usually instant due to cache)
+    holidays_str = await holidays_task
+
     # Convert to natural language for description
-    from datetime import datetime
     check_in_dt = datetime.strptime(result.check_in, "%Y-%m-%d")
     check_out_dt = datetime.strptime(result.check_out, "%Y-%m-%d")
 
     # Get day names
     check_in_day = check_in_dt.strftime("%A")  # e.g., "Wednesday"
-    check_out_day = check_out_dt.strftime("%A")  # e.g., "Sunday"
+    check_out_day = check_out_dt.strftime("%A")  # e.g., "Thursday"
 
-    # Format dates with day names
-    check_in_formatted = check_in_dt.strftime("%A, %B %d, %Y")  # "Wednesday, October 29, 2025"
-    check_out_formatted = check_out_dt.strftime("%A, %B %d, %Y")  # "Sunday, November 9, 2025"
+    # Format checkout date
+    check_out_formatted = check_out_dt.strftime("%A, %B %d, %Y")  # "Thursday, October 30, 2025"
 
-    # Calculate duration
+    # Build description with new format:
+    # "Check-in Wednesday, 1 night stay, checking out Thursday, October 30, 2025"
     nights = result.nights
-    if nights < 7:
-        duration = f"{nights} nights"
-    elif nights == 7:
-        duration = "1 week"
-    elif nights % 7 == 0:
-        duration = f"{nights // 7} weeks"
-    else:
-        weeks = nights / 7
-        duration = f"{weeks:.1f} weeks"
+    night_str = "1 night" if nights == 1 else f"{nights} nights"
 
-    # Build description with days and duration
-    if result.nights == 1:
-        description = f"{date_hint.capitalize()} is {check_in_formatted} (1 night stay, checking out {check_out_formatted})"
-    else:
-        description = f"{date_hint.capitalize()} is from {check_in_formatted} to {check_out_formatted} ({nights} nights / {duration})"
+    description = f"Check-in {check_in_day}, {night_str} stay, checking out {check_out_formatted}"
+
+    # Check for holidays using pre-fetched data
+    check_in_date = check_in_dt.date()
+    check_out_date = check_out_dt.date()
+
+    overlapping_holidays = _find_overlapping_holidays_from_str(
+        check_in_date, check_out_date, holidays_str
+    )
+
+    if overlapping_holidays:
+        # Add holiday information
+        for holiday_name, holiday_start, holiday_end in overlapping_holidays:
+            if holiday_start == holiday_end:
+                description += f" (during {holiday_name} on {holiday_start})"
+            else:
+                description += f" (during {holiday_name} from {holiday_start} to {holiday_end})"
 
     # Return structured data for orchestrator AND readable text for response generator
     # The orchestrator extracts check_in/check_out, but __str__ will show description
