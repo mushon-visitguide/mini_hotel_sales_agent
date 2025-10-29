@@ -1,5 +1,5 @@
 """Response Generator - Creates natural user-facing responses from tool outputs"""
-from typing import List, Optional
+from typing import List, Optional, Dict
 from agent.llm.client import LLMClient
 from src.models.conversation import Message, ToolExecutionSummary
 
@@ -25,7 +25,8 @@ class ResponseGenerator:
         user_message: str,
         recent_messages: List[Message],
         current_tool_results: List[ToolExecutionSummary],
-        planner_action: str
+        planner_action: str,
+        missing_required_parameters: Optional[Dict[str, str]] = None
     ) -> str:
         """
         Generate natural response based ONLY on tool outputs from current turn.
@@ -35,6 +36,7 @@ class ResponseGenerator:
             recent_messages: Recent conversation messages (for context)
             current_tool_results: Tool executions from THIS turn only (compressed)
             planner_action: What the planner said it's doing
+            missing_required_parameters: Map of missing required params to descriptions
 
         Returns:
             Natural language response for the user
@@ -43,13 +45,14 @@ class ResponseGenerator:
         prompt = self._build_prompt(
             user_message=user_message,
             recent_messages=recent_messages,
-            current_tool_results=current_tool_results
+            current_tool_results=current_tool_results,
+            missing_required_parameters=missing_required_parameters
         )
 
         # Get response from LLM
         system_prompt = self._get_system_prompt()
         messages = [
-            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": system_prompt},
             {"role": "user", "content": prompt}
         ]
 
@@ -75,25 +78,32 @@ class ResponseGenerator:
         """Get the ultra-minimal system prompt"""
         return """You are a hotel guest service assistant.
 
-Answer the guest's question using ONLY the information retrieved below.
-Be warm, conversational, and helpful.
-If information is missing, ask the guest for it politely.
-Do not use your general knowledge about hotels or locations."""
+CRITICAL: Answer using ONLY the information provided you here
+- NEVER invent prices, room names, dates, or availability
+- NEVER use your general hotel knowledge or make assumptions
+- If you need information that wasn't retrieved → Ask for it
+
+Be warm, conversational, and helpful. If information is missing, ask the guest for it politely.
+
+ALWAYS: Respond or ask with the shortest message that achieves first-contact resolution: classify (silently) the intent as Binary, Transactional, or Exploratory and size the reply accordingly. For Binary, return a one-line verdict only—add one critical condition only if it changes the outcome. For Transactional, proactively include the three decision essentials (current availability or next best, headline price/range, one defining spec like room type) plus one clear next step; ask at most one missing detail if it blocks completion. For Exploratory, give a 3-bullet micro-summary then offer "More details?"; always mirror the user's tone, use digits/symbols, bold a single key term, and keep compliance invisible.
+"""
 
     def _build_prompt(
         self,
         user_message: str,
         recent_messages: List[Message],
-        current_tool_results: List[ToolExecutionSummary]
+        current_tool_results: List[ToolExecutionSummary],
+        missing_required_parameters: Optional[Dict[str, str]] = None
     ) -> str:
         """Build the ultra-minimal prompt with only essential info"""
 
         parts = []
 
         # Recent conversation (last 5 messages for context)
-        if recent_messages:
+        # Exclude the current message (last one) to avoid duplication with "Guest's Question"
+        if recent_messages and len(recent_messages) > 1:
             parts.append("## Recent Conversation")
-            for msg in recent_messages[-5:]:
+            for msg in recent_messages[-5:-1]:  # All but the last message
                 role_display = msg.role.value.upper()
                 parts.append(f"{role_display}: {msg.content}")
             parts.append("")
@@ -104,6 +114,16 @@ Do not use your general knowledge about hotels or locations."""
             for tool in current_tool_results:
                 status = "✓" if tool.success else "✗"
                 parts.append(f"[{status}] {tool.output_summary}")
+            parts.append("")
+
+        # Missing required parameters (when planner couldn't proceed)
+        if missing_required_parameters:
+            parts.append("## Missing Required Information")
+            parts.append("These parameters are needed to proceed:")
+            for param_name, param_description in missing_required_parameters.items():
+                parts.append(f"  - {param_description}")
+            parts.append("")
+            parts.append("Ask the guest for this information conversationally.")
             parts.append("")
 
         # Current question
