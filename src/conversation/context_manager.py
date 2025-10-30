@@ -57,6 +57,8 @@ class ContextManager:
         session_id: str,
         hotel_id: Optional[str] = None,
         pms_type: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        host_guidance_prompt: Optional[str] = None,
         storage_dir: Optional[Path] = None,
         llm_client: Optional[LLMClient] = None,
         **kwargs
@@ -68,6 +70,8 @@ class ContextManager:
             session_id: Session identifier
             hotel_id: Hotel ID
             pms_type: PMS type
+            phone_number: Guest phone number for session authentication
+            host_guidance_prompt: Hotel-specific guidance for response generation
             storage_dir: Storage directory for sessions
             llm_client: LLM client for summarization
             **kwargs: Additional arguments for ContextManager
@@ -79,6 +83,8 @@ class ContextManager:
             session_id=session_id,
             hotel_id=hotel_id,
             pms_type=pms_type,
+            phone_number=phone_number,
+            host_guidance_prompt=host_guidance_prompt,
             storage_dir=storage_dir
         )
 

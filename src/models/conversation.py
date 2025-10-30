@@ -136,6 +136,12 @@ class ConversationMetadata:
     hotel_id: Optional[str] = None
     pms_type: Optional[str] = None
 
+    # Guest identification (phone number for session authentication)
+    phone_number: Optional[str] = None
+
+    # Host-specific guidance for response generation (highest priority)
+    host_guidance_prompt: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization"""
         return {
@@ -148,7 +154,9 @@ class ConversationMetadata:
             "last_summarized_turn": self.last_summarized_turn,
             "summary_version": self.summary_version,
             "hotel_id": self.hotel_id,
-            "pms_type": self.pms_type
+            "pms_type": self.pms_type,
+            "phone_number": self.phone_number,
+            "host_guidance_prompt": self.host_guidance_prompt
         }
 
     @classmethod
@@ -164,7 +172,9 @@ class ConversationMetadata:
             last_summarized_turn=data.get("last_summarized_turn", 0),
             summary_version=data.get("summary_version", 0),
             hotel_id=data.get("hotel_id"),
-            pms_type=data.get("pms_type")
+            pms_type=data.get("pms_type"),
+            phone_number=data.get("phone_number"),
+            host_guidance_prompt=data.get("host_guidance_prompt")
         )
 
     def increment_turn(self) -> None:

@@ -31,6 +31,8 @@ def compress_tool_output(tool_name: str, tool_result: Any) -> Tuple[str, Optiona
         return _compress_calendar_output(tool_name, tool_result)
     elif tool_name.startswith("pms."):
         return _compress_pms_output(tool_name, tool_result)
+    elif tool_name.startswith("guest."):
+        return _compress_guest_output(tool_name, tool_result)
     else:
         # Generic compression for unknown tools
         return _compress_generic(tool_result)
@@ -74,6 +76,24 @@ def _compress_calendar_output(tool_name: str, result: Any) -> Tuple[str, Optiona
     elif isinstance(result, dict):
         # Keep structured format
         return str(result), {"type": "calendar", "dates": result}
+    else:
+        return str(result), metadata
+
+
+def _compress_guest_output(tool_name: str, result: Any) -> Tuple[str, Optional[Dict[str, Any]]]:
+    """
+    Guest tools are NOT compressed - return full result.
+
+    Guest information contains important reservation details that should not be truncated.
+    """
+    metadata = {"type": "guest", "tool": tool_name}
+
+    if "get_guest_info" in tool_name:
+        metadata["content_type"] = "guest_info"
+
+    # Return full result without compression
+    if isinstance(result, str):
+        return result, metadata
     else:
         return str(result), metadata
 

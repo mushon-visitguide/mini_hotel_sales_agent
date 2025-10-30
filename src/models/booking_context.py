@@ -31,7 +31,8 @@ class BookingContext:
     budget_max_per_night: Optional[float] = None
 
     # Guest information
-    guest_name: Optional[str] = None
+    guest_first_name: Optional[str] = None
+    guest_last_name: Optional[str] = None
     guest_phone: Optional[str] = None
     guest_email: Optional[str] = None
 
@@ -80,8 +81,17 @@ class BookingContext:
             self.room_preferences.append(slots["bed_preference"])
 
         # Guest info
+        if slots.get("guest_first_name"):
+            self.guest_first_name = slots["guest_first_name"]
+        if slots.get("guest_last_name"):
+            self.guest_last_name = slots["guest_last_name"]
         if slots.get("guest_name"):
-            self.guest_name = slots["guest_name"]
+            # Support old format: split into first/last name
+            parts = slots["guest_name"].split(None, 1)
+            if len(parts) >= 1 and not self.guest_first_name:
+                self.guest_first_name = parts[0]
+            if len(parts) >= 2 and not self.guest_last_name:
+                self.guest_last_name = parts[1]
         if slots.get("guest_phone"):
             self.guest_phone = slots["guest_phone"]
         if slots.get("guest_email"):
@@ -94,7 +104,8 @@ class BookingContext:
     def has_guest_info(self) -> bool:
         """Check if we have complete guest contact information"""
         return (
-            self.guest_name is not None and
+            self.guest_first_name is not None and
+            self.guest_last_name is not None and
             (self.guest_phone is not None or self.guest_email is not None)
         )
 
@@ -114,8 +125,10 @@ class BookingContext:
             missing.append("dates")
         if self.selected_room_code is None:
             missing.append("room selection")
-        if self.guest_name is None:
-            missing.append("guest name")
+        if self.guest_first_name is None:
+            missing.append("guest first name")
+        if self.guest_last_name is None:
+            missing.append("guest last name")
         if self.guest_phone is None and self.guest_email is None:
             missing.append("contact info (phone or email)")
 
@@ -166,7 +179,9 @@ class BookingContext:
         if self.selected_room_code:
             parts.append(f"Room: {self.selected_room_code}")
 
-        if self.guest_name:
-            parts.append(f"Guest: {self.guest_name}")
+        if self.guest_first_name or self.guest_last_name:
+            name_parts = [self.guest_first_name or "", self.guest_last_name or ""]
+            guest_name = " ".join(p for p in name_parts if p)
+            parts.append(f"Guest: {guest_name}")
 
         return " | ".join(parts) if parts else "No booking info"

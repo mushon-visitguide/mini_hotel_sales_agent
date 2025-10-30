@@ -1,9 +1,12 @@
 """Runtime executor for tool DAG with parallel execution"""
 import asyncio
-from typing import List, Dict, Any
+import time
+from typing import List, Dict, Any, Optional
 from agent.llm.schemas import ToolCall
 from agent.tools.registry import registry
 from agent.tools.availability.tools import summarize_multi_room_mixed, summarize_multi_room_simple
+from agent.core.events import runtime_events
+from agent.core.cancellation import CancellationToken, CancelledException
 
 
 class Runtime:
@@ -32,7 +35,8 @@ class Runtime:
         tools: List[ToolCall],
         credentials: Dict[str, Any],
         prerun_results: Dict[str, Any] = None,
-        debug: bool = False
+        debug: bool = False,
+        cancel_token: Optional[CancellationToken] = None
     ) -> Dict[str, Any]:
         """
         Execute tools DAG with parallel execution where possible.
@@ -48,6 +52,7 @@ class Runtime:
             credentials: PMS credentials to inject into tool args
             prerun_results: Pre-executed tool results (tool_id -> result) to skip execution
             debug: Enable debug output
+            cancel_token: Optional cancellation token to check before each wave
 
         Returns:
             Dict mapping tool IDs to their results
@@ -55,6 +60,7 @@ class Runtime:
         Raises:
             ValueError: If circular dependencies detected
             TimeoutError: If any tool exceeds timeout
+            CancelledException: If operation is cancelled via cancel_token
         """
         if not tools:
             return {}
@@ -78,8 +84,41 @@ class Runtime:
 
         # Execute each wave
         for wave_num, wave_tools in enumerate(waves):
+            # Check cancellation before starting wave
+            if cancel_token and cancel_token.is_cancelled:
+                if debug:
+                    print(f"\n[Runtime] Cancellation detected at wave {wave_num + 1}/{len(waves)}")
+                    print(f"[Runtime] Reason: {cancel_token.cancel_reason}")
+                    print(f"[Runtime] Returning {len(results)} partial results")
+
+                # 🪝 Emit cancellation event
+                await runtime_events.emit(
+                    'execution_cancelled',
+                    wave_num=wave_num + 1,
+                    total_waves=len(waves),
+                    partial_results_count=len(results),
+                    cancel_reason=cancel_token.cancel_reason
+                )
+
+                # Raise exception with partial results
+                raise CancelledException(
+                    message=cancel_token.cancel_reason or "Operation cancelled",
+                    partial_results=results,
+                    wave_num=wave_num + 1
+                )
+
             if debug:
                 print(f"\n[Runtime] Executing wave {wave_num + 1}/{len(waves)} ({len(wave_tools)} tools in parallel)")
+
+            # 🪝 Emit wave start event
+            await runtime_events.emit(
+                'wave_start',
+                wave_num=wave_num + 1,
+                total_waves=len(waves),
+                tools=[{"tool_id": t.id, "tool_name": t.tool} for t in wave_tools]
+            )
+
+            wave_start_time = time.time()
 
             # Execute all tools in this wave in parallel
             wave_results = await self._execute_wave(
@@ -87,6 +126,17 @@ class Runtime:
                 results,
                 credentials,
                 debug
+            )
+
+            wave_duration_ms = (time.time() - wave_start_time) * 1000
+
+            # 🪝 Emit wave complete event
+            await runtime_events.emit(
+                'wave_complete',
+                wave_num=wave_num + 1,
+                total_waves=len(waves),
+                duration_ms=wave_duration_ms,
+                tool_count=len(wave_tools)
             )
 
             # Auto-summarize multi-room availability if detected
@@ -251,6 +301,16 @@ class Runtime:
             }
             print(f"  [Tool] {tool.id}: {tool.tool}({list(safe_args.keys())})")
 
+        # 🪝 Emit tool start event
+        await runtime_events.emit(
+            'tool_start',
+            tool_id=tool.id,
+            tool_name=tool.tool,
+            args={k: "***REDACTED***" if k in ["pms_username", "pms_password", "phone_number"] else v for k, v in args.items()}
+        )
+
+        start_time = time.time()
+
         try:
             # Execute with timeout
             result = await asyncio.wait_for(
@@ -258,12 +318,49 @@ class Runtime:
                 timeout=self.default_timeout
             )
 
+            duration_ms = (time.time() - start_time) * 1000
+
+            # 🪝 Emit tool complete event
+            await runtime_events.emit(
+                'tool_complete',
+                tool_id=tool.id,
+                tool_name=tool.tool,
+                duration_ms=duration_ms,
+                success=True
+            )
+
             return result
 
         except asyncio.TimeoutError:
-            raise TimeoutError(f"Tool {tool.tool} timed out after {self.default_timeout}s")
+            duration_ms = (time.time() - start_time) * 1000
+            error_msg = f"Tool {tool.tool} timed out after {self.default_timeout}s"
+
+            # 🪝 Emit tool error event
+            await runtime_events.emit(
+                'tool_error',
+                tool_id=tool.id,
+                tool_name=tool.tool,
+                error=error_msg,
+                duration_ms=duration_ms,
+                error_type='timeout'
+            )
+
+            raise TimeoutError(error_msg)
 
         except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            error_msg = str(e)
+
+            # 🪝 Emit tool error event
+            await runtime_events.emit(
+                'tool_error',
+                tool_id=tool.id,
+                tool_name=tool.tool,
+                error=error_msg,
+                duration_ms=duration_ms,
+                error_type='execution_error'
+            )
+
             raise RuntimeError(f"Tool {tool.tool} failed: {e}")
 
     def _substitute_args(

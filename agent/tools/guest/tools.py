@@ -5,8 +5,33 @@ from agent.tools.registry import registry
 
 
 # Hardcoded guest database (will be replaced with real PMS integration)
-# Today's date for reference: 2025-10-26
+# Today's date for reference: 2025-10-29
 GUEST_DATABASE = {
+    "555-1234": {
+        "name": "Test Guest",
+        "email": "test@example.com",
+        "phone": "555-1234",
+        "loyalty_status": "Regular",
+        "vip": False,
+        "inhouse_reservations": [
+            {
+                "confirmation": "RES-2025-999",
+                "check_in": "2025-10-29",
+                "check_out": "2025-10-31",
+                "nights": 2,
+                "room_number": "305",
+                "room_type": "Gevurah Suite",
+                "adults": 1,
+                "children": 0,
+                "board": "Breakfast included",
+                "total_price": "1500 ILS",
+                "balance_due": "0 ILS (Paid)",
+                "status": "In-House"
+            }
+        ],
+        "future_reservations": [],
+        "past_reservations": []
+    },
     "john@example.com": {
         "name": "John Smith",
         "email": "john@example.com",
@@ -200,7 +225,7 @@ GUEST_DATABASE = {
 
 @registry.tool(
     name="guest.get_guest_info",
-    description="Get complete guest information including past, current, and future reservations"
+    description="Get current guest information and reservation details using phone number from session"
 )
 async def get_guest_info(
     # PMS credentials (passed automatically from orchestrator)
@@ -208,89 +233,62 @@ async def get_guest_info(
     pms_username: str,
     pms_password: str,
     hotel_id: str,
+    # Session phone number (passed automatically from session)
+    phone_number: Optional[str] = None,
     pms_use_sandbox: bool = False,
     pms_url_code: Optional[str] = None,
-    pms_agency_channel_id: Optional[int] = None,
-    # Optional contact override (usually not needed - uses booking context)
-    guest_name: Optional[str] = None,
-    guest_email: Optional[str] = None,
-    guest_phone: Optional[str] = None
+    pms_agency_channel_id: Optional[int] = None
 ) -> str:
     """
-    Look up complete guest information from PMS including:
-    - Guest profile (name, contact, loyalty status, preferences)
-    - Past reservations (historical stays)
-    - In-house reservations (currently staying)
-    - Future reservations (upcoming bookings)
+    Look up guest information using session phone number.
 
-    This tool should be called when you need guest/reservation info to better serve the request.
-    It will use the guest information already collected in the conversation (name, email, phone).
+    Returns hardcoded reservation data including:
+    - Reservation ID
+    - Guest name (first and last)
+    - Room number
+    - Amount paid
+
+    This tool requires NO parameters from the LLM - it uses the phone number
+    from the session automatically.
 
     Args:
         pms_type: PMS type (minihotel, ezgo)
         pms_username: PMS username
         pms_password: PMS password
         hotel_id: Hotel ID
+        phone_number: Guest phone number from session (passed automatically)
         pms_use_sandbox: Use sandbox mode
         pms_url_code: URL code
         pms_agency_channel_id: Agency channel ID
-        guest_name: Guest name (from booking context)
-        guest_email: Guest email (from booking context)
-        guest_phone: Guest phone (from booking context)
 
     Returns:
-        String with complete guest profile and reservation history
+        String with guest reservation information
     """
-    # Determine which contact info to use for lookup
-    contact = None
-    if guest_email:
-        contact = guest_email
-    elif guest_phone:
-        contact = guest_phone
-    elif guest_name:
-        contact = guest_name
-
-    if not contact:
+    if not phone_number:
         return """
 ╔════════════════════════════════════════════════════════════════╗
 ║                    GUEST INFORMATION LOOKUP                     ║
 ╚════════════════════════════════════════════════════════════════╝
 
-⚠️  NO GUEST CONTACT INFO PROVIDED
+⚠️  NO PHONE NUMBER IN SESSION
 
-Please ask the guest for their:
-  • Email address (preferred), OR
-  • Phone number, OR
-  • Full name
-
-Once collected, I can look up their reservation history and preferences.
+This session was not started with a phone number.
+Please restart with: python main.py --phone <phone_number>
 """
 
-    # Normalize contact
-    contact_normalized = contact.strip().lower()
+    # Normalize phone number
+    phone_normalized = phone_number.strip().replace("-", "").replace("+972", "").replace(" ", "")
 
-    # Try exact match
+    # Try to find guest by phone number
     guest = None
-    if contact_normalized in GUEST_DATABASE:
-        guest = GUEST_DATABASE[contact_normalized]
-    else:
-        # Try phone number variants
-        contact_clean = contact_normalized.replace("-", "").replace("+972", "").replace(" ", "")
-        for key, g in GUEST_DATABASE.items():
-            key_clean = key.replace("-", "").replace("+972", "").replace(" ", "")
-            if contact_clean == key_clean:
-                guest = g
-                break
-
-        # Try name match
-        if not guest:
-            for g in GUEST_DATABASE.values():
-                if g["name"].lower() == contact_normalized:
-                    guest = g
-                    break
+    for key, g in GUEST_DATABASE.items():
+        key_clean = key.replace("-", "").replace("+972", "").replace(" ", "")
+        if phone_normalized == key_clean:
+            guest = g
+            break
 
     if not guest:
-        return _format_guest_not_found(contact)
+        return _format_guest_not_found(phone_number)
 
     return _format_guest_info(guest)
 

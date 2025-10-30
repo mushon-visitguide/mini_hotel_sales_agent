@@ -176,6 +176,176 @@ class ToolPlanner:
 
         return examples_text
 
+    async def adapt(
+        self,
+        original_message: str,
+        original_plan: PlanningResult,
+        original_results: Dict[str, Any],
+        validation_feedback: str,
+        attempted_tools: set,
+        debug: bool = False
+    ) -> PlanningResult:
+        """
+        Re-plan based on validation feedback.
+
+        This is called when the initial plan's results were insufficient
+        (e.g., no availability, errors). The LLM sees what failed and
+        plans alternative approaches.
+
+        Args:
+            original_message: User's original message
+            original_plan: Initial planning result
+            original_results: Results from initial execution
+            validation_feedback: Natural language feedback about what went wrong
+            attempted_tools: Set of tool signatures already tried (to avoid duplicates)
+            debug: Enable debug logging
+
+        Returns:
+            New planning result with alternative approach
+        """
+        # Build rich context for adaptation
+        context = self._build_adaptation_context(
+            original_message,
+            original_plan,
+            original_results,
+            validation_feedback,
+            attempted_tools
+        )
+
+        if debug:
+            print(f"\n[ToolPlanner] Adapting plan based on feedback")
+            print(f"[ToolPlanner] Validation feedback: {validation_feedback}")
+            print(f"[ToolPlanner] Already attempted: {len(attempted_tools)} tools")
+
+        # Ask LLM to plan alternative approach
+        try:
+            adapted_plan = await self.plan(
+                message=context,
+                context=None,  # Context is already in the message
+                debug=debug
+            )
+
+            if debug:
+                print(f"[ToolPlanner] Adapted plan: {len(adapted_plan.tools)} new tools")
+
+            return adapted_plan
+
+        except Exception as e:
+            # If adaptation fails, return empty plan (will stop adaptation)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Adaptation planning failed: {e}")
+
+            # Return empty plan to signal no adaptation possible
+            return PlanningResult(
+                action="Unable to adapt plan",
+                reasoning=f"Adaptation failed: {e}",
+                slots=original_plan.slots,
+                tools=[],
+                missing_required_parameters=[]
+            )
+
+    def _build_adaptation_context(
+        self,
+        original_message: str,
+        original_plan: PlanningResult,
+        original_results: Dict[str, Any],
+        validation_feedback: str,
+        attempted_tools: set
+    ) -> str:
+        """
+        Build rich context for adaptation planning.
+
+        Shows the LLM:
+        - What the user originally asked for
+        - What we tried
+        - What happened (results summary)
+        - What went wrong (validation feedback)
+        - What not to repeat (attempted tools)
+        """
+        context_parts = [
+            "# Adaptation Context",
+            "",
+            "## Original User Request",
+            original_message,
+            "",
+            "## What We Tried",
+            f"Action: {original_plan.action}",
+            "",
+            "Tools executed:",
+        ]
+
+        # Show what tools were executed
+        for tool in original_plan.tools:
+            args_str = ", ".join(f"{k}={v}" for k, v in tool.args.items()) if tool.args else "no args"
+            context_parts.append(f"- {tool.tool}({args_str})")
+
+        context_parts.extend([
+            "",
+            "## What Happened (Results Summary)",
+        ])
+
+        # Summarize results for each tool
+        for tool in original_plan.tools:
+            result = original_results.get(tool.id)
+            summary = self._summarize_result(result)
+            context_parts.append(f"- {tool.tool}: {summary}")
+
+        context_parts.extend([
+            "",
+            "## Issues Identified",
+            validation_feedback,
+            "",
+            "## Already Attempted (DO NOT REPEAT)",
+            "These tool calls have already been tried:",
+        ])
+
+        if attempted_tools:
+            for tool_sig in attempted_tools:
+                context_parts.append(f"- {tool_sig}")
+        else:
+            context_parts.append("- None yet")
+
+        context_parts.extend([
+            "",
+            "## Your Task",
+            "Plan ALTERNATIVE tools to address the user's original request.",
+            "",
+            "IMPORTANT Guidelines:",
+            "- Use DIFFERENT approaches than what we already tried",
+            "- If no availability for dates X, try dates Y (±1-3 days nearby)",
+            "- If 8 nights had no availability, try shorter stay (2-3 nights)",
+            "- If tool failed with error, try alternative tool or different parameters",
+            "- If nothing reasonable to try, return EMPTY tools list",
+            "- DO NOT repeat the exact same tool calls",
+            "",
+            "Return your adapted plan with tools that have a good chance of success.",
+            "If you believe we should respond with current results and no adaptation is possible, return empty tools list.",
+        ])
+
+        return "\n".join(context_parts)
+
+    def _summarize_result(self, result: Any) -> str:
+        """Summarize a tool result for context (used in adaptation)"""
+        if isinstance(result, dict):
+            if "error" in result:
+                return f"❌ ERROR: {result['error']}"
+            elif "available_rooms" in result:
+                rooms = result.get("available_rooms", [])
+                if not rooms:
+                    return "❌ No rooms available"
+                return f"✅ Found {len(rooms)} rooms"
+            elif "check_in" in result and "check_out" in result:
+                return f"✅ Dates: {result['check_in']} to {result['check_out']}"
+            else:
+                return "✅ Success"
+        elif isinstance(result, str):
+            # Truncate long strings
+            preview = result[:80] + "..." if len(result) > 80 else result
+            return f"✅ {preview}"
+        else:
+            return "✅ Success"
+
 
 class ToolPlannerFactory:
     """Factory for creating ToolPlanner instances"""

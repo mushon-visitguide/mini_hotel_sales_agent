@@ -175,6 +175,25 @@ async def get_availability(
 
         output_lines.append("")  # Blank line between rooms
 
+    # Always generate booking link for these dates
+    booking_url = client.generate_booking_link(
+        check_in=check_in,
+        check_out=check_out,
+        adults=adults,
+        children=children,
+        babies=babies,
+        room_type_code=None,  # No specific room - let guest choose
+        language="en",
+        currency=response.currency
+    )
+
+    # Add booking link to output
+    output_lines.append("─" * 60)
+    output_lines.append("📎 BOOKING LINK")
+    output_lines.append("─" * 60)
+    output_lines.append(f"Ready to book? Use this link: {booking_url}")
+    output_lines.append("")
+
     return "\n".join(output_lines)
 
 

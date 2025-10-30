@@ -121,6 +121,11 @@ class PlanningResult(BaseModel):
         description="ALL tools to execute for this request. Use 'needs' field to specify dependencies between tools."
     )
 
+    missing_required_parameters: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Map of missing required parameter names to human-friendly descriptions. Only populate when tools array is empty due to missing mandatory parameters."
+    )
+
     reasoning: str = Field(
         description="Brief explanation of your plan (1-2 sentences)"
     )
