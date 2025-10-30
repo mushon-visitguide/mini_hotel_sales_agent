@@ -156,7 +156,8 @@ async def main_interactive(silent_mode=False):
                 print(f"{Colors.CYAN}{'─' * 70}{Colors.END}\n")
 
         except Exception as e:
-            print(f"\n{Colors.RED}❌ Error: {e}{Colors.END}\n")
+            if not silent_mode:
+                print(f"\n{Colors.RED}❌ Error: {e}{Colors.END}\n")
 
     # Main input loop - always available for typing
     try:
@@ -172,7 +173,8 @@ async def main_interactive(silent_mode=False):
 
             # Handle quit
             if message.lower() in ['quit', 'exit', 'q']:
-                print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
+                if not silent_mode:
+                    print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
                 break
 
             # Handle reset
@@ -195,7 +197,8 @@ async def main_interactive(silent_mode=False):
             asyncio.create_task(process_in_background(message))
 
     except KeyboardInterrupt:
-        print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
+        if not silent_mode:
+            print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
 
 
 if __name__ == "__main__":
@@ -213,4 +216,5 @@ if __name__ == "__main__":
     try:
         asyncio.run(main_interactive(silent_mode=args.silent))
     except KeyboardInterrupt:
-        print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
+        if not silent_mode:
+            print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")

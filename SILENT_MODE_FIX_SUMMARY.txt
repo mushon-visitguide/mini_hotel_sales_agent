@@ -1,0 +1,131 @@
+================================================================================
+SILENT MODE ISSUES - QUICK FIX GUIDE
+================================================================================
+
+PROBLEM:
+--------
+Silent mode (-s flag) should show ONLY bot responses, but unconditional print
+statements bypass the debug flag and appear in silent mode.
+
+CRITICAL ISSUES FOUND:
+----------------------
+
+1. 🔴 agent/llm/responder.py (Lines 63-70)
+   - ALWAYS prints full prompt in blue box
+   - Happens on EVERY response generation
+   - MOST VISIBLE ISSUE
+
+2. 🔴 agent/core/orchestrator.py (Line 539)
+   - Doesn't pass debug flag to responder
+   - Causes issue #1 to happen
+
+3. 🟡 cli_interactive.py (Lines 159, 175, 198, 216)
+   - Error messages and "Goodbye" ignore silent mode
+   - Less critical but still shows unwanted output
+
+================================================================================
+FIXES NEEDED
+================================================================================
+
+FIX 1: agent/llm/responder.py
+------------------------------
+FILE: /home/mushon/hotel_sales_ai_agent/agent/llm/responder.py
+
+Line 23: Add debug parameter
+    async def generate_response(
+        self,
+        user_message: str,
+        recent_messages: List[Message],
+        current_tool_results: List[ToolExecutionSummary],
+        planner_action: str,
+        missing_required_parameters: Optional[Dict[str, str]] = None,
+        host_guidance_prompt: Optional[str] = None,
+        debug: bool = False  # <-- ADD THIS
+    ) -> str:
+
+Lines 62-71: Wrap print statements
+    # Only print in debug mode
+    if debug:  # <-- ADD THIS
+        print("\033[94m" + "=" * 70)
+        print("[RESPONSE GENERATOR PROMPT]")
+        print("=" * 70)
+        print("\n### SYSTEM PROMPT:")
+        print(system_prompt)
+        print("\n### USER PROMPT:")
+        print(prompt)
+        print("=" * 70 + "\033[0m")
+
+
+FIX 2: agent/core/orchestrator.py
+-----------------------------------
+FILE: /home/mushon/hotel_sales_ai_agent/agent/core/orchestrator.py
+
+Line 539: Pass debug flag
+    response = await responder.generate_response(
+        user_message=message,
+        recent_messages=context_manager.get_recent_messages(5),
+        current_tool_results=current_tool_results,
+        planner_action=planning_result.action,
+        missing_required_parameters=planning_result.missing_required_parameters,
+        host_guidance_prompt=context_manager.state.metadata.host_guidance_prompt,
+        debug=debug  # <-- ADD THIS
+    )
+
+
+FIX 3: cli_interactive.py
+--------------------------
+FILE: /home/mushon/hotel_sales_ai_agent/cli_interactive.py
+
+Line 159: Check silent mode for errors
+    except Exception as e:
+        if not silent_mode:  # <-- ADD THIS
+            print(f"\n{Colors.RED}❌ Error: {e}{Colors.END}\n")
+
+Lines 175, 198, 216: Check silent mode for goodbye
+    # Need to make silent_mode accessible in these scopes
+    # Option A: Pass as parameter to exception handlers
+    # Option B: Store in closure/nonlocal variable
+    # Option C: Just remove goodbye messages in silent mode
+
+    if not silent_mode:  # <-- ADD THIS before each goodbye print
+        print(f"\n{Colors.YELLOW}Goodbye! 👋{Colors.END}")
+
+
+================================================================================
+VERIFICATION
+================================================================================
+
+After applying fixes, run:
+
+    ./verify_silent_issues.sh
+
+All checks should pass (✅).
+
+Then test manually:
+
+    python3 cli_interactive.py -s
+
+Expected output in silent mode:
+    >> user message
+    Bot response only
+    >> quit
+    [exits silently]
+
+NO logs, NO debug output, NO progress messages, NO goodbye message.
+
+================================================================================
+FILES TO MODIFY
+================================================================================
+
+1. /home/mushon/hotel_sales_ai_agent/agent/llm/responder.py
+   - Line 23: Add debug parameter
+   - Lines 62-71: Wrap prints in if debug:
+
+2. /home/mushon/hotel_sales_ai_agent/agent/core/orchestrator.py
+   - Line 539: Pass debug=debug to responder
+
+3. /home/mushon/hotel_sales_ai_agent/cli_interactive.py
+   - Line 159: Check silent_mode for errors
+   - Lines 175, 198, 216: Check silent_mode for goodbye
+
+================================================================================

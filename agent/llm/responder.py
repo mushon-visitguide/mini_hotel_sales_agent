@@ -27,7 +27,8 @@ class ResponseGenerator:
         current_tool_results: List[ToolExecutionSummary],
         planner_action: str,
         missing_required_parameters: Optional[Dict[str, str]] = None,
-        host_guidance_prompt: Optional[str] = None
+        host_guidance_prompt: Optional[str] = None,
+        debug: bool = False
     ) -> str:
         """
         Generate natural response based ONLY on tool outputs from current turn.
@@ -59,15 +60,16 @@ class ResponseGenerator:
             {"role": "user", "content": prompt}
         ]
 
-        # Print the entire prompt in blue
-        print("\033[94m" + "=" * 70)
-        print("[RESPONSE GENERATOR PROMPT]")
-        print("=" * 70)
-        print("\n### SYSTEM PROMPT:")
-        print(system_prompt)
-        print("\n### USER PROMPT:")
-        print(prompt)
-        print("=" * 70 + "\033[0m")
+        # Print the entire prompt in blue (only in debug mode)
+        if debug:
+            print("\033[94m" + "=" * 70)
+            print("[RESPONSE GENERATOR PROMPT]")
+            print("=" * 70)
+            print("\n### SYSTEM PROMPT:")
+            print(system_prompt)
+            print("\n### USER PROMPT:")
+            print(prompt)
+            print("=" * 70 + "\033[0m")
 
         response = self.llm.chat_completion(
             messages=messages,

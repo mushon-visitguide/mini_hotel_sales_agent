@@ -542,7 +542,8 @@ class Orchestrator:
                     current_tool_results=current_tool_results,
                     planner_action=planning_result.action,
                     missing_required_parameters=planning_result.missing_required_parameters,
-                    host_guidance_prompt=context_manager.state.metadata.host_guidance_prompt
+                    host_guidance_prompt=context_manager.state.metadata.host_guidance_prompt,
+                    debug=debug
                 )
 
                 # Save assistant response to conversation
