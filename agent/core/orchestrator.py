@@ -368,7 +368,7 @@ class Orchestrator:
                 # Notify user of adaptation (if progress notifier available)
                 if self.progress_notifier:
                     try:
-                        self.progress_notifier.send_message("🔄 Trying alternatives...")
+                        await self.progress_notifier.send_message("🔄 Trying alternatives...")
                     except Exception as e:
                         logger.warning(f"Failed to send adaptation progress: {e}")
 

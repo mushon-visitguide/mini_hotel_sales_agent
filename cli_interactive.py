@@ -89,12 +89,17 @@ async def main_interactive(silent_mode=False):
     )
 
     # Progress notifier (only if not silent mode)
-    async def send_progress(user_id: str, text: str):
+    def send_progress_sync(text: str):
+        """Synchronous progress message (called from event loop)"""
         if not silent_mode:
             print(f"\n{Colors.YELLOW}🔄 {text}{Colors.END}")
 
+    async def send_progress_async(text: str):
+        """Async wrapper for progress messages"""
+        send_progress_sync(text)
+
     progress_notifier = ProgressNotifier(
-        send_message=lambda text: send_progress(DEFAULT_PHONE_NUMBER, text)
+        send_message=send_progress_async
     )
     progress_notifier.setup()
     orchestrator.progress_notifier = progress_notifier
